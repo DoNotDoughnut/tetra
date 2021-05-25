@@ -113,10 +113,12 @@ impl Context {
 
         time::reset(self);
 
+        let mut output = Ok(());
+
+        state.begin(self)?;
+
         self.running = true;
         self.window.set_visible(true);
-
-        let mut output = Ok(());
 
         if let Err(e) = self.game_loop(state) {
             output = Err(e);
@@ -124,6 +126,8 @@ impl Context {
 
         self.running = false;
         self.window.set_visible(false);
+
+        state.end(self)?;
 
         output
     }
