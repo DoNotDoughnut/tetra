@@ -137,8 +137,9 @@ pub fn clear(ctx: &mut Context, color: Color) {
     ctx.device.clear(color);
 }
 
+/// Unstable function - draws a quad
 #[allow(clippy::too_many_arguments)]
-pub(crate) fn push_quad(
+pub fn push_quad(
     ctx: &mut Context,
     x1: f32,
     y1: f32,
@@ -212,7 +213,8 @@ pub(crate) fn push_quad(
     ctx.graphics.element_count += 6;
 }
 
-pub(crate) fn set_texture(ctx: &mut Context, texture: &Texture) {
+/// Unstable function - Sets current texture
+pub fn set_texture(ctx: &mut Context, texture: &Texture) {
     set_texture_ex(ctx, ActiveTexture::User(texture.clone()));
 }
 
