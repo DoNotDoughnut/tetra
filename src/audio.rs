@@ -83,7 +83,7 @@ impl Sound {
     ///
     /// * [`TetraError::NoAudioDevice`] will be returned if no audio device is active.
     /// * [`TetraError::InvalidSound`] will be returned if the sound data could not be decoded.
-    pub fn play(&self, ctx: &Context) -> Result<SoundInstance> {
+    pub fn play<G>(&self, ctx: &Context<G>) -> Result<SoundInstance> {
         ctx.audio
             .play_sound(Arc::clone(&self.data), true, false, 1.0, 1.0)
             .map(|controls| SoundInstance { controls })
@@ -95,7 +95,7 @@ impl Sound {
     ///
     /// * [`TetraError::NoAudioDevice`] will be returned if no audio device is active.
     /// * [`TetraError::InvalidSound`] will be returned if the sound data could not be decoded.
-    pub fn repeat(&self, ctx: &Context) -> Result<SoundInstance> {
+    pub fn repeat<G>(&self, ctx: &Context<G>) -> Result<SoundInstance> {
         ctx.audio
             .play_sound(Arc::clone(&self.data), true, true, 1.0, 1.0)
             .map(|controls| SoundInstance { controls })
@@ -107,7 +107,7 @@ impl Sound {
     ///
     /// * [`TetraError::NoAudioDevice`] will be returned if no audio device is active.
     /// * [`TetraError::InvalidSound`] will be returned if the sound data could not be decoded.
-    pub fn spawn(&self, ctx: &Context) -> Result<SoundInstance> {
+    pub fn spawn<G>(&self, ctx: &Context<G>) -> Result<SoundInstance> {
         ctx.audio
             .play_sound(Arc::clone(&self.data), false, false, 1.0, 1.0)
             .map(|controls| SoundInstance { controls })
@@ -119,7 +119,7 @@ impl Sound {
     ///
     /// * [`TetraError::NoAudioDevice`] will be returned if no audio device is active.
     /// * [`TetraError::InvalidSound`] will be returned if the sound data could not be decoded.
-    pub fn play_with(&self, ctx: &Context, volume: f32, speed: f32) -> Result<SoundInstance> {
+    pub fn play_with<G>(&self, ctx: &Context<G>, volume: f32, speed: f32) -> Result<SoundInstance> {
         ctx.audio
             .play_sound(Arc::clone(&self.data), true, false, volume, speed)
             .map(|controls| SoundInstance { controls })
@@ -131,7 +131,7 @@ impl Sound {
     ///
     /// * [`TetraError::NoAudioDevice`] will be returned if no audio device is active.
     /// * [`TetraError::InvalidSound`] will be returned if the sound data could not be decoded.
-    pub fn repeat_with(&self, ctx: &Context, volume: f32, speed: f32) -> Result<SoundInstance> {
+    pub fn repeat_with<G>(&self, ctx: &Context<G>, volume: f32, speed: f32) -> Result<SoundInstance> {
         ctx.audio
             .play_sound(Arc::clone(&self.data), true, true, volume, speed)
             .map(|controls| SoundInstance { controls })
@@ -143,7 +143,7 @@ impl Sound {
     ///
     /// * [`TetraError::NoAudioDevice`] will be returned if no audio device is active.
     /// * [`TetraError::InvalidSound`] will be returned if the sound data could not be decoded.
-    pub fn spawn_with(&self, ctx: &Context, volume: f32, speed: f32) -> Result<SoundInstance> {
+    pub fn spawn_with<G>(&self, ctx: &Context<G>, volume: f32, speed: f32) -> Result<SoundInstance> {
         ctx.audio
             .play_sound(Arc::clone(&self.data), false, false, volume, speed)
             .map(|controls| SoundInstance { controls })
@@ -256,12 +256,12 @@ pub enum SoundState {
 ///
 /// The parameter is used as a multiplier - for example, `1.0` would result in
 /// sounds being played back at their original volume.
-pub fn set_master_volume(ctx: &mut Context, volume: f32) {
+pub fn set_master_volume<G>(ctx: &mut Context<G>, volume: f32) {
     ctx.audio.set_master_volume(volume);
 }
 
 /// Gets the master volume for the game.
-pub fn get_master_volume(ctx: &mut Context) -> f32 {
+pub fn get_master_volume<G>(ctx: &mut Context<G>) -> f32 {
     ctx.audio.master_volume()
 }
 

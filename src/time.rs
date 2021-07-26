@@ -81,7 +81,7 @@ impl TimeContext {
     }
 }
 
-pub(crate) fn reset(ctx: &mut Context) {
+pub(crate) fn reset<G>(ctx: &mut Context<G>) {
     ctx.time.delta_time = Duration::from_secs(0);
     ctx.time.accumulator = Duration::from_secs(0);
 }
@@ -96,7 +96,7 @@ pub(crate) fn reset(ctx: &mut Context) {
 /// When using a fixed time step, calling this function during an update will always
 /// return the configured update rate. This is to prevent floating point error/non-determinism
 /// from creeping into your game's calculations!
-pub fn get_delta_time(ctx: &Context) -> Duration {
+pub fn get_delta_time<G>(ctx: &Context<G>) -> Duration {
     ctx.time.delta_time
 }
 
@@ -106,7 +106,7 @@ pub fn get_delta_time(ctx: &Context) -> Duration {
 /// as updates occur, it will decrease.
 ///
 /// When using a variable time step, this function always returns `Duration::from_secs(0)`.
-pub fn get_accumulator(ctx: &Context) -> Duration {
+pub fn get_accumulator<G>(ctx: &Context<G>) -> Duration {
     ctx.time.accumulator
 }
 
@@ -121,7 +121,7 @@ pub fn get_accumulator(ctx: &Context) -> Duration {
 /// This function returns an [`f32`], which is usually what you want when blending - however,
 /// if you need a more precise representation of the blend factor, you can call
 /// [`get_blend_factor_precise`].
-pub fn get_blend_factor(ctx: &Context) -> f32 {
+pub fn get_blend_factor<G>(ctx: &Context<G>) -> f32 {
     match ctx.time.tick_rate {
         Some(tick_rate) => ctx.time.accumulator.as_secs_f32() / tick_rate.as_secs_f32(),
         None => 0.0,
@@ -139,7 +139,7 @@ pub fn get_blend_factor(ctx: &Context) -> f32 {
 /// This function returns an [`f64`], which is a very precise representation of the blend factor,
 /// but often difficult to use in game logic without casting. If you need an [`f32`], call
 /// [`get_blend_factor`] instead.
-pub fn get_blend_factor_precise(ctx: &Context) -> f64 {
+pub fn get_blend_factor_precise<G>(ctx: &Context<G>) -> f64 {
     match ctx.time.tick_rate {
         Some(tick_rate) => ctx.time.accumulator.as_secs_f64() / tick_rate.as_secs_f64(),
         None => 0.0,
@@ -147,7 +147,7 @@ pub fn get_blend_factor_precise(ctx: &Context) -> f64 {
 }
 
 /// Gets the current timestep of the application.
-pub fn get_timestep(ctx: &Context) -> Timestep {
+pub fn get_timestep<G>(ctx: &Context<G>) -> Timestep {
     match ctx.time.ticks_per_second {
         Some(tps) => Timestep::Fixed(tps),
         None => Timestep::Variable,
@@ -155,7 +155,7 @@ pub fn get_timestep(ctx: &Context) -> Timestep {
 }
 
 /// Sets the timestep of the application.
-pub fn set_timestep(ctx: &mut Context, timestep: Timestep) {
+pub fn set_timestep<G>(ctx: &mut Context<G>, timestep: Timestep) {
     ctx.time.ticks_per_second = match timestep {
         Timestep::Fixed(tps) => Some(tps),
         Timestep::Variable => None,
@@ -168,6 +168,6 @@ pub fn set_timestep(ctx: &mut Context, timestep: Timestep) {
 }
 
 /// Returns the current frame rate, averaged out over the last 200 frames.
-pub fn get_fps(ctx: &Context) -> f64 {
+pub fn get_fps<G>(ctx: &Context<G>) -> f64 {
     1.0 / (ctx.time.fps_tracker.iter().sum::<f64>() / ctx.time.fps_tracker.len() as f64)
 }

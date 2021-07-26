@@ -61,7 +61,7 @@ impl Font {
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the GPU cache for the font
     ///   could not be created.
     #[cfg(feature = "font_ttf")]
-    pub fn vector<P>(ctx: &mut Context, path: P, size: f32) -> Result<Font>
+    pub fn vector<G, P>(ctx: &mut Context<G>, path: P, size: f32) -> Result<Font>
     where
         P: AsRef<Path>,
     {
@@ -85,8 +85,8 @@ impl Font {
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the GPU cache for the font
     /// could not be created.
     #[cfg(feature = "font_ttf")]
-    pub fn from_vector_file_data(
-        ctx: &mut Context,
+    pub fn from_vector_file_data<G>(
+        ctx: &mut Context<G>,
         data: &'static [u8],
         size: f32,
     ) -> Result<Font> {
@@ -125,7 +125,7 @@ impl Font {
     /// data was invalid.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the GPU cache for the font
     /// could not be created.
-    pub fn bmfont<P>(ctx: &mut Context, path: P) -> Result<Font>
+    pub fn bmfont<G, P>(ctx: &mut Context<G>, path: P) -> Result<Font>
     where
         P: AsRef<Path>,
     {
@@ -142,7 +142,7 @@ impl Font {
     /// Note that changing the filter mode of a font will affect all [`Text`] objects
     /// that use that font, including existing ones. This is due to the fact that
     /// each font has a shared texture atlas.
-    pub fn set_filter_mode(&mut self, ctx: &mut Context, filter_mode: FilterMode) {
+    pub fn set_filter_mode<G>(&mut self, ctx: &mut Context<G>, filter_mode: FilterMode) {
         self.data.borrow_mut().set_filter_mode(ctx, filter_mode);
     }
 }
@@ -208,7 +208,7 @@ impl Text {
     }
 
     /// Draws the text to the screen (or to a canvas, if one is enabled).
-    pub fn draw<P>(&mut self, ctx: &mut Context, params: P)
+    pub fn draw<G, P>(&mut self, ctx: &mut Context<G>, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -332,7 +332,7 @@ impl Text {
     /// If the text's layout needs calculating, this method will do so.
     ///
     /// Note that this method will not take into account the positioning applied to the text via [`DrawParams`].
-    pub fn get_bounds(&mut self, ctx: &mut Context) -> Option<Rectangle> {
+    pub fn get_bounds<G>(&mut self, ctx: &mut Context<G>) -> Option<Rectangle> {
         self.update_geometry(ctx);
 
         self.geometry
@@ -341,7 +341,7 @@ impl Text {
             .bounds
     }
 
-    fn update_geometry(&mut self, ctx: &mut Context) {
+    fn update_geometry<G>(&mut self, ctx: &mut Context<G>) {
         let mut data = self.font.data.borrow_mut();
 
         let needs_render = match &self.geometry {

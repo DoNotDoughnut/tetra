@@ -11,7 +11,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         let vector_text = Text::new(
             "Hello, world!\n\nThis is some text being rendered from a TTF font.",
             Font::vector(ctx, "./examples/resources/DejaVuSansMono.ttf", 16.0)?,
@@ -29,8 +29,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         self.vector_text.draw(ctx, TEXT_OFFSET);
@@ -44,6 +44,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Rendering Text", 1280, 720)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

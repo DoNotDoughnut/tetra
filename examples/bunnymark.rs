@@ -44,7 +44,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         let mut rng = rand::thread_rng();
         let texture = Texture::new(ctx, "./examples/resources/wabbit_alpha.png")?;
         let mut bunnies = Vec::with_capacity(INITIAL_BUNNIES);
@@ -67,8 +67,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         if self.click_timer > 0 {
             self.click_timer -= 1;
         }
@@ -108,7 +108,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         for bunny in &self.bunnies {
@@ -131,6 +131,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("BunnyMark", WIDTH, HEIGHT)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

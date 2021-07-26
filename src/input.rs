@@ -72,7 +72,7 @@ impl InputContext {
     }
 }
 
-pub(crate) fn clear(ctx: &mut Context) {
+pub(crate) fn clear<G>(ctx: &mut Context<G>) {
     ctx.input.keys_pressed.clear();
     ctx.input.keys_released.clear();
     ctx.input.mouse_buttons_pressed.clear();
@@ -91,7 +91,7 @@ pub(crate) fn clear(ctx: &mut Context) {
 
 /// Returns the text that the user entered since the last update.
 /// This will match the user's keyboard and OS settings.
-pub fn get_text_input(ctx: &Context) -> Option<&str> {
+pub fn get_text_input<G>(ctx: &Context<G>) -> Option<&str> {
     ctx.input.current_text_input.as_deref()
 }
 
@@ -101,7 +101,7 @@ pub fn get_text_input(ctx: &Context) -> Option<&str> {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be
 /// returned if the text could not be retrieved from the clipboard.
-pub fn get_clipboard_text(ctx: &Context) -> Result<String> {
+pub fn get_clipboard_text<G>(ctx: &Context<G>) -> Result<String> {
     ctx.window.get_clipboard_text()
 }
 
@@ -111,11 +111,11 @@ pub fn get_clipboard_text(ctx: &Context) -> Result<String> {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be
 /// returned if the clipboard could not be modified.
-pub fn set_clipboard_text(ctx: &Context, text: &str) -> Result {
+pub fn set_clipboard_text<G>(ctx: &Context<G>, text: &str) -> Result {
     ctx.window.set_clipboard_text(text)
 }
 
-pub(crate) fn push_text_input(ctx: &mut Context, text: &str) {
+pub(crate) fn push_text_input<G>(ctx: &mut Context<G>, text: &str) {
     match &mut ctx.input.current_text_input {
         Some(existing) => existing.push_str(text),
         x @ None => *x = Some(text.to_string()),

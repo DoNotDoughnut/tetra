@@ -84,7 +84,7 @@ impl Camera {
     /// update. If you need to keep the window size and the viewport size in sync, then call
     /// [`set_viewport_size`](Self::set_viewport_size) in [`State::event`](crate::State::event) when
     /// [`Event::Resized`](crate::Event::Resized) is fired.
-    pub fn with_window_size(ctx: &Context) -> Camera {
+    pub fn with_window_size<G>(ctx: &Context<G>) -> Camera {
         let (width, height) = window::get_size(ctx);
         Camera::new(width as f32, height as f32)
     }
@@ -152,7 +152,7 @@ impl Camera {
     /// This is a shortcut for calling [`project(input::get_mouse_position(ctx))`](Self::project).
     /// As such, it does not take into account any other transformations
     /// being made to the view (e.g. screen scaling).
-    pub fn mouse_position(&self, ctx: &Context) -> Vec2<f32> {
+    pub fn mouse_position<G>(&self, ctx: &Context<G>) -> Vec2<f32> {
         self.project(input::get_mouse_position(ctx))
     }
 
@@ -161,7 +161,7 @@ impl Camera {
     /// This is a shortcut for calling [`project(input::get_mouse_position(ctx)).x`](Self::project).
     /// As such, it does not take into account any other transformations
     /// being made to the view (e.g. screen scaling).
-    pub fn mouse_x(&self, ctx: &Context) -> f32 {
+    pub fn mouse_x<G>(&self, ctx: &Context<G>) -> f32 {
         self.mouse_position(ctx).x
     }
 
@@ -170,7 +170,7 @@ impl Camera {
     /// This is a shortcut for calling [`project(input::get_mouse_position(ctx)).y`](Self::project).
     /// As such, it does not take into account any other transformations
     /// being made to the view (e.g. screen scaling).
-    pub fn mouse_y(&self, ctx: &Context) -> f32 {
+    pub fn mouse_y<G>(&self, ctx: &Context<G>) -> f32 {
         self.mouse_position(ctx).y
     }
 

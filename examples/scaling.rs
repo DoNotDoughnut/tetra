@@ -21,7 +21,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         Ok(GameState {
             scaler: ScreenScaler::with_window_size(ctx, 640, 480, ScalingMode::Fixed)?,
             panel_texture: Texture::new(ctx, "./examples/resources/panel.png")?,
@@ -39,8 +39,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         if input::is_key_pressed(ctx, Key::Space) {
             let next = match self.scaler.mode() {
                 ScalingMode::Fixed => ScalingMode::Stretch,
@@ -57,7 +57,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
@@ -78,7 +78,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut Context, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut Context<()>, event: Event) -> tetra::Result {
         if let Event::Resized { width, height } = event {
             self.scaler.set_outer_size(width, height);
         }
@@ -92,6 +92,6 @@ fn main() -> tetra::Result {
         .resizable(true)
         .maximized(true)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

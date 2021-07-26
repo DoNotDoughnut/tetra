@@ -12,7 +12,7 @@ struct GameState {
 }
 
 impl GameState {
-    pub fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    pub fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         Ok(Self {
             circle_mesh: Mesh::circle(ctx, ShapeStyle::Fill, Vec2::new(400.0, 300.0), 150.0)?,
             rectangle_mesh: Mesh::rectangle(
@@ -25,8 +25,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::BLACK);
 
         // configure the graphics state for writing to the stencil buffer
@@ -71,6 +71,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Stencils", 800, 600)
         .stencil_buffer(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

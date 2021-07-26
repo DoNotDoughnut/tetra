@@ -83,7 +83,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/controls.png")?,
             active_color: Color::rgb(1.0, 0.5, 0.5),
@@ -118,7 +118,7 @@ impl GameState {
         })
     }
 
-    fn draw_button(&self, ctx: &mut Context, x: f32, y: f32, sprite: Sprite, active: bool) {
+    fn draw_button(&self, ctx: &mut Context<()>, x: f32, y: f32, sprite: Sprite, active: bool) {
         self.texture.draw_region(
             ctx,
             sprite.into(),
@@ -132,7 +132,7 @@ impl GameState {
         );
     }
 
-    fn draw_stick(&self, ctx: &mut Context, x: f32, y: f32, sprite: Sprite, value: Vec2<f32>) {
+    fn draw_stick(&self, ctx: &mut Context<()>, x: f32, y: f32, sprite: Sprite, value: Vec2<f32>) {
         self.texture.draw_region(
             ctx,
             sprite.into(),
@@ -147,8 +147,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         self.connected = input::is_gamepad_connected(ctx, 0);
 
         if self.connected {
@@ -192,7 +192,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         if self.connected {
@@ -229,6 +229,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Gamepad Input", 1280, 720)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

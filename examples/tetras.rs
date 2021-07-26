@@ -26,7 +26,7 @@ fn main() -> tetra::Result {
     ContextBuilder::new("Tetras", SCREEN_WIDTH, SCREEN_HEIGHT)
         .resizable(true)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }
 
@@ -51,7 +51,7 @@ struct Assets {
 }
 
 impl Assets {
-    fn load(ctx: &mut Context) -> tetra::Result<Assets> {
+    fn load(ctx: &mut Context<()>) -> tetra::Result<Assets> {
         let font = VectorFontBuilder::new("./examples/resources/DejaVuSansMono.ttf")?;
 
         Ok(Assets {
@@ -78,8 +78,8 @@ impl Assets {
 // do this without defining your own trait!
 
 trait Scene {
-    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition>;
-    fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition>;
+    fn update(&mut self, ctx: &mut Context<()>, assets: &Assets) -> tetra::Result<Transition>;
+    fn draw(&mut self, ctx: &mut Context<()>, assets: &Assets) -> tetra::Result<Transition>;
 }
 
 enum Transition {
@@ -98,7 +98,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         let assets = Assets::load(ctx)?;
         let initial_scene = TitleScene::new(ctx, &assets)?;
 
@@ -115,8 +115,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         match self.scenes.last_mut() {
             Some(active_scene) => match active_scene.update(ctx, &self.assets)? {
                 Transition::None => {}
@@ -133,7 +133,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
 
         match self.scenes.last_mut() {
@@ -157,7 +157,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut Context, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut Context<()>, event: Event) -> tetra::Result {
         if let Event::Resized { width, height } = event {
             self.scaler.set_outer_size(width, height);
         }
@@ -174,7 +174,7 @@ struct TitleScene {
 }
 
 impl TitleScene {
-    fn new(ctx: &mut Context, assets: &Assets) -> tetra::Result<TitleScene> {
+    fn new(ctx: &mut Context<()>, assets: &Assets) -> tetra::Result<TitleScene> {
         // Setting a Sound to repeat without holding on to the SoundInstance
         // is usually a bad practice, as it means you can never stop playback.
         // In our case though, we want it to repeat forever, so it's fine!
@@ -188,7 +188,7 @@ impl TitleScene {
 }
 
 impl Scene for TitleScene {
-    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context<()>, assets: &Assets) -> tetra::Result<Transition> {
         if input::is_key_pressed(ctx, Key::Space) {
             Ok(Transition::Push(Box::new(GameScene::new(ctx, assets))))
         } else {
@@ -196,7 +196,7 @@ impl Scene for TitleScene {
         }
     }
 
-    fn draw(&mut self, ctx: &mut Context, _: &Assets) -> tetra::Result<Transition> {
+    fn draw(&mut self, ctx: &mut Context<()>, _: &Assets) -> tetra::Result<Transition> {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         self.title_text.draw(ctx, Vec2::new(16.0, 16.0));
@@ -354,7 +354,7 @@ struct GameScene {
 }
 
 impl GameScene {
-    fn new(_: &mut Context, assets: &Assets) -> GameScene {
+    fn new(_: &mut Context<()>, assets: &Assets) -> GameScene {
         GameScene {
             block: Block::new(),
             drop_timer: 0,
@@ -439,7 +439,7 @@ impl GameScene {
 }
 
 impl Scene for GameScene {
-    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context<()>, assets: &Assets) -> tetra::Result<Transition> {
         self.drop_timer += 1;
         self.move_timer += 1;
 
@@ -576,7 +576,7 @@ impl Scene for GameScene {
         Ok(Transition::None)
     }
 
-    fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition> {
+    fn draw(&mut self, ctx: &mut Context<()>, assets: &Assets) -> tetra::Result<Transition> {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         assets

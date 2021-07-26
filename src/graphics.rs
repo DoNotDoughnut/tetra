@@ -133,14 +133,14 @@ impl GraphicsContext {
 }
 
 /// Clears the screen (or a canvas, if one is enabled) to the specified color.
-pub fn clear(ctx: &mut Context, color: Color) {
+pub fn clear<G>(ctx: &mut Context<G>, color: Color) {
     ctx.device.clear(color);
 }
 
 /// Unstable function - draws a quad
 #[allow(clippy::too_many_arguments)]
-pub fn push_quad(
-    ctx: &mut Context,
+pub fn push_quad<G>(
+    ctx: &mut Context<G>,
     x1: f32,
     y1: f32,
     x2: f32,
@@ -214,11 +214,11 @@ pub fn push_quad(
 }
 
 /// Unstable function - Sets current texture
-pub fn set_texture(ctx: &mut Context, texture: &Texture) {
+pub fn set_texture<G>(ctx: &mut Context<G>, texture: &Texture) {
     set_texture_ex(ctx, ActiveTexture::User(texture.clone()));
 }
 
-pub(crate) fn set_texture_ex(ctx: &mut Context, texture: ActiveTexture) {
+pub(crate) fn set_texture_ex<G>(ctx: &mut Context<G>, texture: ActiveTexture) {
     if texture != ctx.graphics.texture {
         flush(ctx);
         ctx.graphics.texture = texture;
@@ -229,7 +229,7 @@ pub(crate) fn set_texture_ex(ctx: &mut Context, texture: ActiveTexture) {
 ///
 /// The blend mode will be used to determine how drawn content will be blended
 /// with the screen (or with a [`Canvas`], if one is active).
-pub fn set_blend_mode(ctx: &mut Context, blend_mode: BlendMode) {
+pub fn set_blend_mode<G>(ctx: &mut Context<G>, blend_mode: BlendMode) {
     if blend_mode != ctx.graphics.blend_mode {
         flush(ctx);
         ctx.graphics.blend_mode = blend_mode;
@@ -238,7 +238,7 @@ pub fn set_blend_mode(ctx: &mut Context, blend_mode: BlendMode) {
 }
 
 /// Resets the blend mode to the default.
-pub fn reset_blend_mode(ctx: &mut Context) {
+pub fn reset_blend_mode<G>(ctx: &mut Context<G>) {
     set_blend_mode(ctx, Default::default());
 }
 
@@ -247,16 +247,16 @@ pub fn reset_blend_mode(ctx: &mut Context) {
 /// If the shader is different from the one that is currently in use, this will trigger a
 /// [`flush`] to the graphics hardware - try to avoid shader swapping as
 /// much as you can.
-pub fn set_shader(ctx: &mut Context, shader: &Shader) {
+pub fn set_shader<G>(ctx: &mut Context<G>, shader: &Shader) {
     set_shader_ex(ctx, ActiveShader::User(shader.clone()));
 }
 
 /// Sets the renderer back to using the default shader.
-pub fn reset_shader(ctx: &mut Context) {
+pub fn reset_shader<G>(ctx: &mut Context<G>) {
     set_shader_ex(ctx, ActiveShader::Default);
 }
 
-pub(crate) fn set_shader_ex(ctx: &mut Context, shader: ActiveShader) {
+pub(crate) fn set_shader_ex<G>(ctx: &mut Context<G>, shader: ActiveShader) {
     if shader != ctx.graphics.shader {
         flush(ctx);
         ctx.graphics.shader = shader;
@@ -267,16 +267,16 @@ pub(crate) fn set_shader_ex(ctx: &mut Context, shader: ActiveShader) {
 ///
 /// If the canvas is different from the one that is currently in use, this will trigger a
 /// [`flush`] to the graphics hardware.
-pub fn set_canvas(ctx: &mut Context, canvas: &Canvas) {
+pub fn set_canvas<G>(ctx: &mut Context<G>, canvas: &Canvas) {
     set_canvas_ex(ctx, ActiveCanvas::User(canvas.clone()));
 }
 
 /// Sets the renderer back to drawing to the screen directly.
-pub fn reset_canvas(ctx: &mut Context) {
+pub fn reset_canvas<G>(ctx: &mut Context<G>) {
     set_canvas_ex(ctx, ActiveCanvas::Window);
 }
 
-pub(crate) fn set_canvas_ex(ctx: &mut Context, canvas: ActiveCanvas) {
+pub(crate) fn set_canvas_ex<G>(ctx: &mut Context<G>, canvas: ActiveCanvas) {
     if canvas != ctx.graphics.canvas {
         flush(ctx);
         resolve_canvas(ctx);
@@ -305,7 +305,7 @@ pub(crate) fn set_canvas_ex(ctx: &mut Context, canvas: ActiveCanvas) {
     }
 }
 
-fn resolve_canvas(ctx: &mut Context) {
+fn resolve_canvas<G>(ctx: &mut Context<G>) {
     if let ActiveCanvas::User(c) = &ctx.graphics.canvas {
         if c.multisample.is_some() {
             ctx.device.resolve(&c.handle, &c.texture.data.handle);
@@ -319,7 +319,7 @@ fn resolve_canvas(ctx: &mut Context) {
 /// automatically flush when necessary. Try to keep flushing to a minimum,
 /// as this will reduce the number of draw calls made to the
 /// graphics device.
-pub fn flush(ctx: &mut Context) {
+pub fn flush<G>(ctx: &mut Context<G>) {
     if !ctx.graphics.vertex_data.is_empty() {
         let texture = match &ctx.graphics.texture {
             ActiveTexture::Default => return,
@@ -375,19 +375,19 @@ pub fn flush(ctx: &mut Context) {
 ///
 /// You usually will not have to call this manually, as it is called for you at the end of every
 /// frame. Note that calling it will trigger a [`flush`] to the graphics hardware.
-pub fn present(ctx: &mut Context) {
+pub fn present<G>(ctx: &mut Context<G>) {
     flush(ctx);
 
     ctx.window.swap_buffers();
 }
 
 /// Returns the filter mode that will be used by newly created textures and canvases.
-pub fn get_default_filter_mode(ctx: &Context) -> FilterMode {
+pub fn get_default_filter_mode<G>(ctx: &Context<G>) -> FilterMode {
     ctx.graphics.default_filter_mode
 }
 
 /// Sets the filter mode that will be used by newly created textures and canvases.
-pub fn set_default_filter_mode(ctx: &mut Context, filter_mode: FilterMode) {
+pub fn set_default_filter_mode<G>(ctx: &mut Context<G>, filter_mode: FilterMode) {
     ctx.graphics.default_filter_mode = filter_mode;
 }
 
@@ -411,19 +411,19 @@ pub struct GraphicsDeviceInfo {
 /// Retrieves information about the device currently being used to render graphics.
 ///
 /// This may be useful for debugging/logging purposes.
-pub fn get_device_info(ctx: &Context) -> GraphicsDeviceInfo {
+pub fn get_device_info<G>(ctx: &Context<G>) -> GraphicsDeviceInfo {
     ctx.device.get_info()
 }
 
 /// Returns the current transform matrix.
-pub fn get_transform_matrix(ctx: &Context) -> Mat4<f32> {
+pub fn get_transform_matrix<G>(ctx: &Context<G>) -> Mat4<f32> {
     ctx.graphics.transform_matrix
 }
 
 /// Sets the transform matrix.
 ///
 /// This can be used to apply global transformations to subsequent draw calls.
-pub fn set_transform_matrix(ctx: &mut Context, matrix: Mat4<f32>) {
+pub fn set_transform_matrix<G>(ctx: &mut Context<G>, matrix: Mat4<f32>) {
     flush(ctx);
 
     ctx.graphics.transform_matrix = matrix;
@@ -432,7 +432,7 @@ pub fn set_transform_matrix(ctx: &mut Context, matrix: Mat4<f32>) {
 /// Resets the transform matrix.
 ///
 /// This is a shortcut for calling [`graphics::set_transform_matrix(ctx, Mat4::identity())`](set_transform_matrix).
-pub fn reset_transform_matrix(ctx: &mut Context) {
+pub fn reset_transform_matrix<G>(ctx: &mut Context<G>) {
     set_transform_matrix(ctx, Mat4::identity());
 }
 
@@ -446,7 +446,7 @@ pub fn reset_transform_matrix(ctx: &mut Context) {
 ///
 /// Note that the position/size of the scissor rectangle is not affected by the transform
 /// matrix - it always operates in screen/canvas co-ordinates.
-pub fn set_scissor(ctx: &mut Context, scissor_rect: Rectangle<i32>) {
+pub fn set_scissor<G>(ctx: &mut Context<G>, scissor_rect: Rectangle<i32>) {
     flush(ctx);
 
     match &ctx.graphics.canvas {
@@ -480,7 +480,7 @@ pub fn set_scissor(ctx: &mut Context, scissor_rect: Rectangle<i32>) {
 }
 
 /// Disables the scissor rectangle.
-pub fn reset_scissor(ctx: &mut Context) {
+pub fn reset_scissor<G>(ctx: &mut Context<G>) {
     flush(ctx);
 
     ctx.device.scissor_test(false);
@@ -500,13 +500,13 @@ pub fn reset_scissor(ctx: &mut Context) {
 /// to `true` when creating your context. To enable this for a canvas,
 /// initialize it via [`Canvas::builder`], with [`stencil_buffer`](CanvasBuilder::stencil_buffer)
 /// set to true.
-pub fn set_stencil_state(ctx: &mut Context, state: StencilState) {
+pub fn set_stencil_state<G>(ctx: &mut Context<G>, state: StencilState) {
     flush(ctx);
     ctx.device.set_stencil_state(state);
 }
 
 /// Clears the stencil buffer to the specified value.
-pub fn clear_stencil(ctx: &mut Context, value: u8) {
+pub fn clear_stencil<G>(ctx: &mut Context<G>, value: u8) {
     flush(ctx);
     ctx.device.clear_stencil(value);
 }
@@ -516,12 +516,12 @@ pub fn clear_stencil(ctx: &mut Context, value: u8) {
 /// This is useful in conjunction with [`set_stencil_state`]
 /// to draw to the stencil buffer without also drawing to the
 /// visible pixels on screen.
-pub fn set_color_mask(ctx: &mut Context, red: bool, green: bool, blue: bool, alpha: bool) {
+pub fn set_color_mask<G>(ctx: &mut Context<G>, red: bool, green: bool, blue: bool, alpha: bool) {
     flush(ctx);
     ctx.device.set_color_mask(red, green, blue, alpha);
 }
 
-pub(crate) fn set_viewport_size(ctx: &mut Context) {
+pub(crate) fn set_viewport_size<G>(ctx: &mut Context<G>) {
     if let ActiveCanvas::Window = ctx.graphics.canvas {
         let (width, height) = window::get_size(ctx);
         let (physical_width, physical_height) = window::get_physical_size(ctx);

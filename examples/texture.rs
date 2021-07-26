@@ -7,15 +7,15 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/player.png")?,
         })
     }
 }
 
-impl State for GameState {
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.769, 0.812, 0.631));
 
         self.texture.draw(
@@ -33,6 +33,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Rendering a Texture", 640, 480)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

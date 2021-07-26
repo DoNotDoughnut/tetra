@@ -22,47 +22,47 @@ pub enum MouseButton {
 }
 
 /// Returns true if the specified mouse button is currently down.
-pub fn is_mouse_button_down(ctx: &Context, button: MouseButton) -> bool {
+pub fn is_mouse_button_down<G>(ctx: &Context<G>, button: MouseButton) -> bool {
     ctx.input.mouse_buttons_down.contains(&button)
 }
 
 /// Returns true if the specified mouse button is currently up.
-pub fn is_mouse_button_up(ctx: &Context, button: MouseButton) -> bool {
+pub fn is_mouse_button_up<G>(ctx: &Context<G>, button: MouseButton) -> bool {
     !ctx.input.mouse_buttons_down.contains(&button)
 }
 
 /// Returns true if the specified mouse button was pressed since the last update.
-pub fn is_mouse_button_pressed(ctx: &Context, button: MouseButton) -> bool {
+pub fn is_mouse_button_pressed<G>(ctx: &Context<G>, button: MouseButton) -> bool {
     ctx.input.mouse_buttons_pressed.contains(&button)
 }
 
 /// Returns true if the specified mouse button was released since the last update.
-pub fn is_mouse_button_released(ctx: &Context, button: MouseButton) -> bool {
+pub fn is_mouse_button_released<G>(ctx: &Context<G>, button: MouseButton) -> bool {
     ctx.input.mouse_buttons_released.contains(&button)
 }
 
 /// Returns true if the user scrolled up since the last update.
-pub fn is_mouse_scrolled_up(ctx: &Context) -> bool {
+pub fn is_mouse_scrolled_up<G>(ctx: &Context<G>) -> bool {
     get_mouse_wheel_movement(ctx).y > 0
 }
 
 /// Returns true if the user scrolled down since the last update.
-pub fn is_mouse_scrolled_down(ctx: &Context) -> bool {
+pub fn is_mouse_scrolled_down<G>(ctx: &Context<G>) -> bool {
     get_mouse_wheel_movement(ctx).y < 0
 }
 
 /// Get the X co-ordinate of the mouse.
-pub fn get_mouse_x(ctx: &Context) -> f32 {
+pub fn get_mouse_x<G>(ctx: &Context<G>) -> f32 {
     ctx.input.mouse_position.x
 }
 
 /// Get the Y co-ordinate of the mouse.
-pub fn get_mouse_y(ctx: &Context) -> f32 {
+pub fn get_mouse_y<G>(ctx: &Context<G>) -> f32 {
     ctx.input.mouse_position.y
 }
 
 /// Get the position of the mouse.
-pub fn get_mouse_position(ctx: &Context) -> Vec2<f32> {
+pub fn get_mouse_position<G>(ctx: &Context<G>) -> Vec2<f32> {
     ctx.input.mouse_position
 }
 
@@ -73,11 +73,11 @@ pub fn get_mouse_position(ctx: &Context) -> Vec2<f32> {
 ///
 /// Positive values correspond to scrolling up/right, negative values correspond to scrolling
 /// down/left.
-pub fn get_mouse_wheel_movement(ctx: &Context) -> Vec2<i32> {
+pub fn get_mouse_wheel_movement<G>(ctx: &Context<G>) -> Vec2<i32> {
     ctx.input.mouse_wheel_movement
 }
 
-pub(crate) fn set_mouse_button_down(ctx: &mut Context, btn: MouseButton) -> bool {
+pub(crate) fn set_mouse_button_down<G>(ctx: &mut Context<G>, btn: MouseButton) -> bool {
     let was_up = ctx.input.mouse_buttons_down.insert(btn);
 
     if was_up {
@@ -87,7 +87,7 @@ pub(crate) fn set_mouse_button_down(ctx: &mut Context, btn: MouseButton) -> bool
     was_up
 }
 
-pub(crate) fn set_mouse_button_up(ctx: &mut Context, btn: MouseButton) -> bool {
+pub(crate) fn set_mouse_button_up<G>(ctx: &mut Context<G>, btn: MouseButton) -> bool {
     let was_down = ctx.input.mouse_buttons_down.remove(&btn);
 
     if was_down {
@@ -97,10 +97,10 @@ pub(crate) fn set_mouse_button_up(ctx: &mut Context, btn: MouseButton) -> bool {
     was_down
 }
 
-pub(crate) fn set_mouse_position(ctx: &mut Context, position: Vec2<f32>) {
+pub(crate) fn set_mouse_position<G>(ctx: &mut Context<G>, position: Vec2<f32>) {
     ctx.input.mouse_position = position;
 }
 
-pub(crate) fn apply_mouse_wheel_movement(ctx: &mut Context, wheel_movement: Vec2<i32>) {
+pub(crate) fn apply_mouse_wheel_movement<G>(ctx: &mut Context<G>, wheel_movement: Vec2<i32>) {
     ctx.input.mouse_wheel_movement += wheel_movement;
 }

@@ -9,7 +9,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         // For simple one-off shapes, `Mesh` has simple constructors.
         let simple = Mesh::circle(ctx, ShapeStyle::Stroke(16.0), Vec2::zero(), 16.0)?;
 
@@ -31,8 +31,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         self.simple.draw(ctx, Vec2::new(64.0, 64.0));
@@ -44,6 +44,6 @@ impl State for GameState {
 
 fn main() -> tetra::Result {
     ContextBuilder::new("Shape Drawing", 1280, 720)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

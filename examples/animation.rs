@@ -12,7 +12,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         Ok(GameState {
             animation: Animation::new(
                 Texture::new(ctx, "./examples/resources/tiles.png")?,
@@ -23,8 +23,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         self.animation.advance(ctx);
 
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
@@ -44,6 +44,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Displaying an Animation", 480, 320)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

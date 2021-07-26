@@ -8,7 +8,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         let text = Text::new(
             "Look at your console to see what events are being fired!",
             Font::vector(ctx, "./examples/resources/DejaVuSansMono.ttf", 16.0)?,
@@ -18,8 +18,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         self.text.draw(ctx, Vec2::new(16.0, 16.0));
@@ -27,7 +27,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut Context, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut Context<()>, event: Event) -> tetra::Result {
         println!("{:?}", event);
         Ok(())
     }
@@ -36,6 +36,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Events", 1280, 720)
         .resizable(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

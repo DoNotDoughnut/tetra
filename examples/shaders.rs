@@ -15,7 +15,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
         let texture = Texture::new(ctx, "./examples/resources/player.png")?;
         let overlay = Texture::new(ctx, "./examples/resources/overlay.png")?;
 
@@ -40,8 +40,8 @@ impl GameState {
     }
 }
 
-impl State for GameState {
-    fn update(&mut self, _ctx: &mut Context) -> tetra::Result {
+impl State<()> for GameState {
+    fn update(&mut self, _ctx: &mut Context<()>) -> tetra::Result {
         self.timer += 1.0;
 
         self.red = ((self.timer / 10.0).sin() + 1.0) / 2.0;
@@ -56,7 +56,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         graphics::set_shader(ctx, &self.shader);
@@ -84,6 +84,6 @@ impl State for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Custom Shaders", 1280, 720)
         .quit_on_escape(true)
-        .build()?
+        .build(|_| Ok(()))?
         .run(GameState::new)
 }

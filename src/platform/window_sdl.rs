@@ -398,9 +398,9 @@ impl Window {
     }
 }
 
-pub fn handle_events<S, E>(ctx: &mut Context, state: &mut S) -> result::Result<(), E>
+pub fn handle_events<G, S, E>(ctx: &mut Context<G>, state: &mut S) -> result::Result<(), E>
 where
-    S: State<E>,
+    S: State<G, E>,
     E: From<TetraError>,
 {
     while let Some(event) = ctx.window.event_pump.poll_event() {

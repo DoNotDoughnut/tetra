@@ -132,7 +132,7 @@ impl FontCache {
         self.packer.filter_mode()
     }
 
-    pub fn set_filter_mode(&mut self, ctx: &mut Context, filter_mode: FilterMode) {
+    pub fn set_filter_mode<G>(&mut self, ctx: &mut Context<G>, filter_mode: FilterMode) {
         self.packer.set_filter_mode(ctx, filter_mode);
     }
 

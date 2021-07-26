@@ -12,7 +12,7 @@ use crate::{Result, State, TetraError};
 use crate::audio::AudioDevice;
 
 /// A struct containing all of the 'global' state within the framework.
-pub struct Context {
+pub struct Context<G> {
     pub(crate) window: Window,
     pub(crate) device: GraphicsDevice,
     #[cfg(feature = "audio")]
@@ -21,12 +21,15 @@ pub struct Context {
     pub(crate) input: InputContext,
     pub(crate) time: TimeContext,
 
+    /// Custom global field stored in game context that user can modify
+    pub game: G,
+
     pub(crate) running: bool,
     pub(crate) quit_on_escape: bool,
 }
 
-impl Context {
-    pub(crate) fn new(settings: &ContextBuilder) -> Result<Context> {
+impl<G> Context<G> {
+    pub(crate) fn new(settings: &ContextBuilder, game_context: G) -> Result<Context<G>> {
         // This needs to be initialized ASAP to avoid https://github.com/tomaka/rodio/issues/214
         #[cfg(feature = "audio")]
         let audio = AudioDevice::new();
@@ -56,6 +59,7 @@ impl Context {
             graphics,
             input,
             time,
+            game: game_context,
 
             running: false,
             quit_on_escape: settings.quit_on_escape,
@@ -87,26 +91,26 @@ impl Context {
     /// struct GameState;
     ///
     /// impl GameState {
-    ///     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
+    ///     fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
     ///         Ok(GameState)
     ///     }
     /// }
     ///
-    /// impl State for GameState { }
+    /// impl State<()> for GameState { }
     ///
     /// fn main() -> tetra::Result {
     ///     // Because GameState::new takes `&mut Context` and returns a `State` implementation
     ///     // wrapped in a `Result`, you can use it without a closure wrapper:
     ///     ContextBuilder::new("Hello, world!", 1280, 720)
-    ///         .build()?
+    ///         .build(|_| Ok(()))?
     ///         .run(GameState::new)
     /// }
     /// ```
     ///
     pub fn run<S, F, E>(&mut self, init: F) -> result::Result<(), E>
     where
-        S: State<E>,
-        F: FnOnce(&mut Context) -> result::Result<S, E>,
+        S: State<G, E>,
+        F: FnOnce(&mut Context<G>) -> result::Result<S, E>,
         E: From<TetraError>,
     {
         let state = &mut init(self)?;
@@ -134,7 +138,7 @@ impl Context {
 
     pub(crate) fn game_loop<S, E>(&mut self, state: &mut S) -> result::Result<(), E>
     where
-        S: State<E>,
+        S: State<G, E>,
         E: From<TetraError>,
     {
         let mut last_time = Instant::now();
@@ -445,8 +449,20 @@ impl ContextBuilder {
     /// # Errors
     ///
     /// * [`TetraError::PlatformError`] will be returned if the context cannot be initialized.
-    pub fn build(&self) -> Result<Context> {
-        Context::new(self)
+    pub fn build<G, GC: FnOnce(&mut Context<()>) -> result::Result<G, TetraError>>(&self, game_context: GC) -> Result<Context<G>> {
+        let mut ctx = Context::new(self, ())?;
+        let game_context = (game_context)(&mut ctx)?;
+        Ok(Context {
+            window: ctx.window,
+            device: ctx.device,
+            audio: ctx.audio,
+            graphics: ctx.graphics,
+            input: ctx.input,
+            time: ctx.time,
+            game: game_context,
+            running: ctx.running,
+            quit_on_escape: ctx.quit_on_escape,
+        })
     }
 }
 
