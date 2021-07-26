@@ -5,7 +5,7 @@ use std::time::Duration;
 use crate::graphics::texture::Texture;
 use crate::graphics::{DrawParams, Rectangle};
 use crate::time;
-use crate::Context;
+use crate::context::TetraContext;
 
 /// An animation, cycling between regions of a texture at a regular interval.
 ///
@@ -60,7 +60,7 @@ impl Animation {
     }
 
     /// Draws the current frame to the screen (or to a canvas, if one is enabled).
-    pub fn draw<G, P>(&self, ctx: &mut Context<G>, params: P)
+    pub fn draw<P>(&self, ctx: &mut TetraContext, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -73,7 +73,7 @@ impl Animation {
     ///
     /// This method uses the current [delta time](crate::time::get_delta_time)
     /// to calculate how much time has passed.
-    pub fn advance<G>(&mut self, ctx: &Context<G>) {
+    pub fn advance(&mut self, ctx: &TetraContext) {
         self.advance_by(time::get_delta_time(ctx));
     }
 

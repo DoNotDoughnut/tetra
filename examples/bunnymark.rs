@@ -2,6 +2,7 @@
 /// Original BunnyMark (and sprite) by Iain Lobb
 use rand::rngs::ThreadRng;
 use rand::{self, Rng};
+use std::ops::DerefMut;
 use tetra::graphics::{self, Color, Texture};
 use tetra::input::{self, MouseButton};
 use tetra::math::Vec2;
@@ -109,6 +110,9 @@ impl State<()> for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+
+        let ctx = ctx.deref_mut();
+
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         for bunny in &self.bunnies {

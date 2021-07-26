@@ -5,7 +5,7 @@ use crate::graphics::{self, Canvas, DrawParams, Rectangle};
 use crate::input;
 use crate::math::Vec2;
 use crate::window;
-use crate::Context;
+use crate::context::TetraContext;
 
 /// A wrapper for a [`Canvas`] that handles scaling the image to fit the screen.
 ///
@@ -26,8 +26,8 @@ pub struct ScreenScaler {
 impl ScreenScaler {
     /// Returns a new `ScreenScaler`, with the specified inner and outer width and height.
     /// The mode will determine how the image is scaled to fit the screen.
-    pub fn new<G>(
-        ctx: &mut Context<G>,
+    pub fn new(
+        ctx: &mut TetraContext,
         inner_width: i32,
         inner_height: i32,
         outer_width: i32,
@@ -49,8 +49,8 @@ impl ScreenScaler {
 
     /// Returns a new `ScreenScaler`, with the specified inner width and height, and the outer
     /// size set to the current dimensions of the window.
-    pub fn with_window_size<G>(
-        ctx: &mut Context<G>,
+    pub fn with_window_size(
+        ctx: &mut TetraContext,
         inner_width: i32,
         inner_height: i32,
         mode: ScalingMode,
@@ -68,7 +68,7 @@ impl ScreenScaler {
     }
 
     /// Draws the scaled image to the screen.
-    pub fn draw<G>(&self, ctx: &mut Context<G>) {
+    pub fn draw(&self, ctx: &mut TetraContext) {
         graphics::set_texture(ctx, &self.canvas.texture);
 
         graphics::push_quad(
@@ -167,14 +167,14 @@ impl ScreenScaler {
     /// Returns the position of the mouse in scaled screen co-ordinates.
     ///
     /// This is a shortcut for calling [`.project(input::get_mouse_position(ctx))`](Self::project).
-    pub fn mouse_position<G>(&self, ctx: &Context<G>) -> Vec2<f32> {
+    pub fn mouse_position(&self, ctx: &TetraContext) -> Vec2<f32> {
         self.project(input::get_mouse_position(ctx))
     }
 
     /// Returns the X co-ordinate of the mouse in scaled screen co-ordinates.
     ///
     /// This is a shortcut for calling [`project(input::get_mouse_position(ctx)).x`](Self::project).
-    pub fn mouse_x<G>(&self, ctx: &Context<G>) -> f32 {
+    pub fn mouse_x(&self, ctx: &TetraContext) -> f32 {
         let width = self.canvas().width();
 
         project_impl(
@@ -188,7 +188,7 @@ impl ScreenScaler {
     /// Returns the Y co-ordinate of the mouse in scaled screen co-ordinates.
     ///
     /// This is a shortcut for calling [`project(input::get_mouse_position(ctx)).y`](Self::project).
-    pub fn mouse_y<G>(&self, ctx: &Context<G>) -> f32 {
+    pub fn mouse_y(&self, ctx: &TetraContext) -> f32 {
         let height = self.canvas().height();
 
         project_impl(

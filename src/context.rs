@@ -1,4 +1,4 @@
-use std::result;
+use std::{ops::{Deref, DerefMut}, result};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -12,7 +12,7 @@ use crate::{Result, State, TetraError};
 use crate::audio::AudioDevice;
 
 /// A struct containing all of the 'global' state within the framework.
-pub struct Context<G> {
+pub struct TetraContext {
     pub(crate) window: Window,
     pub(crate) device: GraphicsDevice,
     #[cfg(feature = "audio")]
@@ -21,15 +21,12 @@ pub struct Context<G> {
     pub(crate) input: InputContext,
     pub(crate) time: TimeContext,
 
-    /// Custom global field stored in game context that user can modify
-    pub game: G,
-
     pub(crate) running: bool,
     pub(crate) quit_on_escape: bool,
 }
 
-impl<G> Context<G> {
-    pub(crate) fn new(settings: &ContextBuilder, game_context: G) -> Result<Context<G>> {
+impl TetraContext {
+    pub(crate) fn new(settings: &ContextBuilder) -> Result<Self> {
         // This needs to be initialized ASAP to avoid https://github.com/tomaka/rodio/issues/214
         #[cfg(feature = "audio")]
         let audio = AudioDevice::new();
@@ -50,7 +47,7 @@ impl<G> Context<G> {
         let input = InputContext::new();
         let time = TimeContext::new(settings.timestep);
 
-        Ok(Context {
+        Ok(Self {
             window,
             device,
 
@@ -59,12 +56,37 @@ impl<G> Context<G> {
             graphics,
             input,
             time,
-            game: game_context,
 
             running: false,
             quit_on_escape: settings.quit_on_escape,
         })
     }
+
+}
+
+/// A struct containing all of the 'global' state within the framework in addition to a user provided global state.
+pub struct Context<G> {
+    /// Contains all of Tetra's 'global' state used within the framework.
+    pub tetra: TetraContext,
+    /// Custom global field stored in game context that user can modify
+    pub game: G,
+}
+
+impl<G> Deref for Context<G> {
+    type Target = TetraContext;
+
+    fn deref(&self) -> &Self::Target {
+        &self.tetra
+    }
+}
+
+impl<G> DerefMut for Context<G> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.tetra
+    }
+}
+
+impl<G> Context<G> {
 
     /// Runs the game.
     ///
@@ -110,7 +132,7 @@ impl<G> Context<G> {
     pub fn run<S, F, E>(&mut self, init: F) -> result::Result<(), E>
     where
         S: State<G, E>,
-        F: FnOnce(&mut Context<G>) -> result::Result<S, E>,
+        F: FnOnce(&mut Self) -> result::Result<S, E>,
         E: From<TetraError>,
     {
         let state = &mut init(self)?;
@@ -449,20 +471,12 @@ impl ContextBuilder {
     /// # Errors
     ///
     /// * [`TetraError::PlatformError`] will be returned if the context cannot be initialized.
-    pub fn build<G, GC: FnOnce(&mut Context<()>) -> result::Result<G, TetraError>>(&self, game_context: GC) -> Result<Context<G>> {
-        let mut ctx = Context::new(self, ())?;
+    pub fn build<G, GC: FnOnce(&mut TetraContext) -> Result<G>>(&self, game_context: GC) -> Result<Context<G>> {
+        let mut ctx = TetraContext::new(self)?;
         let game_context = (game_context)(&mut ctx)?;
         Ok(Context {
-            window: ctx.window,
-            device: ctx.device,
-            #[cfg(feature = "audio")]
-            audio: ctx.audio,
-            graphics: ctx.graphics,
-            input: ctx.input,
-            time: ctx.time,
+            tetra: ctx,
             game: game_context,
-            running: ctx.running,
-            quit_on_escape: ctx.quit_on_escape,
         })
     }
 }

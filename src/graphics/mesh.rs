@@ -17,7 +17,7 @@ use lyon_tessellation::{
 use crate::graphics::{self, ActiveCanvas, ActiveShader, Color, DrawParams, Rectangle, Texture};
 use crate::math::Vec2;
 use crate::platform::{RawIndexBuffer, RawVertexBuffer};
-use crate::Context;
+use crate::context::TetraContext;
 use crate::{Result, TetraError};
 
 /// An individual piece of vertex data.
@@ -122,7 +122,7 @@ impl VertexBuffer {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn new<G>(ctx: &mut Context<G>, vertices: &[Vertex]) -> Result<VertexBuffer> {
+    pub fn new(ctx: &mut TetraContext, vertices: &[Vertex]) -> Result<VertexBuffer> {
         VertexBuffer::with_usage(ctx, vertices, BufferUsage::Dynamic)
     }
 
@@ -134,8 +134,8 @@ impl VertexBuffer {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn with_usage<G>(
-        ctx: &mut Context<G>,
+    pub fn with_usage(
+        ctx: &mut TetraContext,
         vertices: &[Vertex],
         usage: BufferUsage,
     ) -> Result<VertexBuffer> {
@@ -153,7 +153,7 @@ impl VertexBuffer {
     /// # Panics
     ///
     /// Panics if the offset is out of bounds.
-    pub fn set_data<G>(&self, ctx: &mut Context<G>, vertices: &[Vertex], offset: usize) {
+    pub fn set_data(&self, ctx: &mut TetraContext, vertices: &[Vertex], offset: usize) {
         ctx.device
             .set_vertex_buffer_data(&self.handle, vertices, offset);
     }
@@ -204,7 +204,7 @@ impl IndexBuffer {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn new<G>(ctx: &mut Context<G>, indices: &[u32]) -> Result<IndexBuffer> {
+    pub fn new(ctx: &mut TetraContext, indices: &[u32]) -> Result<IndexBuffer> {
         IndexBuffer::with_usage(ctx, indices, BufferUsage::Dynamic)
     }
 
@@ -216,8 +216,8 @@ impl IndexBuffer {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn with_usage<G>(
-        ctx: &mut Context<G>,
+    pub fn with_usage(
+        ctx: &mut TetraContext,
         indices: &[u32],
         usage: BufferUsage,
     ) -> Result<IndexBuffer> {
@@ -235,7 +235,7 @@ impl IndexBuffer {
     /// # Panics
     ///
     /// Panics if the offset is out of bounds.
-    pub fn set_data<G>(&self, ctx: &mut Context<G>, indices: &[u32], offset: usize) {
+    pub fn set_data(&self, ctx: &mut TetraContext, indices: &[u32], offset: usize) {
         ctx.device
             .set_index_buffer_data(&self.handle, indices, offset);
     }
@@ -326,7 +326,7 @@ impl Mesh {
     }
 
     /// Draws the mesh to the screen (or to a canvas, if one is enabled).
-    pub fn draw<G, P>(&self, ctx: &mut Context<G>, params: P)
+    pub fn draw<P>(&self, ctx: &mut TetraContext, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -345,7 +345,7 @@ impl Mesh {
     /// This should usually only be used for complex meshes - instancing can be inefficient
     /// for simple geometry (e.g. quads). That said, as with all things performance-related,
     /// benchmark it before coming to any conclusions!
-    pub fn draw_instanced<G, P>(&self, ctx: &mut Context<G>, instances: usize, params: P)
+    pub fn draw_instanced<P>(&self, ctx: &mut TetraContext, instances: usize, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -509,7 +509,7 @@ impl Mesh {
     /// could not be turned into vertex data.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn rectangle<G>(ctx: &mut Context<G>, style: ShapeStyle, rectangle: Rectangle) -> Result<Mesh> {
+    pub fn rectangle(ctx: &mut TetraContext, style: ShapeStyle, rectangle: Rectangle) -> Result<Mesh> {
         GeometryBuilder::new()
             .rectangle(style, rectangle)?
             .build_mesh(ctx)
@@ -526,8 +526,8 @@ impl Mesh {
     /// could not be turned into vertex data.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn rounded_rectangle<G>(
-        ctx: &mut Context<G>,
+    pub fn rounded_rectangle(
+        ctx: &mut TetraContext,
         style: ShapeStyle,
         rectangle: Rectangle,
         radii: BorderRadii,
@@ -548,8 +548,8 @@ impl Mesh {
     /// could not be turned into vertex data.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn circle<G>(
-        ctx: &mut Context<G>,
+    pub fn circle(
+        ctx: &mut TetraContext,
         style: ShapeStyle,
         center: Vec2<f32>,
         radius: f32,
@@ -570,8 +570,8 @@ impl Mesh {
     /// could not be turned into vertex data.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn ellipse<G>(
-        ctx: &mut Context<G>,
+    pub fn ellipse(
+        ctx: &mut TetraContext,
         style: ShapeStyle,
         center: Vec2<f32>,
         radii: Vec2<f32>,
@@ -592,7 +592,7 @@ impl Mesh {
     /// could not be turned into vertex data.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn polygon<G>(ctx: &mut Context<G>, style: ShapeStyle, points: &[Vec2<f32>]) -> Result<Mesh> {
+    pub fn polygon(ctx: &mut TetraContext, style: ShapeStyle, points: &[Vec2<f32>]) -> Result<Mesh> {
         GeometryBuilder::new()
             .polygon(style, points)?
             .build_mesh(ctx)
@@ -609,7 +609,7 @@ impl Mesh {
     /// could not be turned into vertex data.
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn polyline<G>(ctx: &mut Context<G>, stroke_width: f32, points: &[Vec2<f32>]) -> Result<Mesh> {
+    pub fn polyline(ctx: &mut TetraContext, stroke_width: f32, points: &[Vec2<f32>]) -> Result<Mesh> {
         GeometryBuilder::new()
             .polyline(stroke_width, points)?
             .build_mesh(ctx)
@@ -966,7 +966,7 @@ impl GeometryBuilder {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn build_buffers<G>(&self, ctx: &mut Context<G>) -> Result<(VertexBuffer, IndexBuffer)> {
+    pub fn build_buffers(&self, ctx: &mut TetraContext) -> Result<(VertexBuffer, IndexBuffer)> {
         Ok((
             VertexBuffer::new(ctx, &self.data.vertices)?,
             IndexBuffer::new(ctx, &self.data.indices)?,
@@ -981,7 +981,7 @@ impl GeometryBuilder {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn build_mesh<G>(&self, ctx: &mut Context<G>) -> Result<Mesh> {
+    pub fn build_mesh(&self, ctx: &mut TetraContext) -> Result<Mesh> {
         let (vertex_buffer, index_buffer) = self.build_buffers(ctx)?;
 
         Ok(Mesh::indexed(vertex_buffer, index_buffer))

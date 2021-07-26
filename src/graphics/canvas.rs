@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::error::Result;
 use crate::graphics::{DrawParams, FilterMode, Texture};
 use crate::platform::{RawCanvas, RawRenderbuffer};
-use crate::Context;
+use crate::context::TetraContext;
 
 use super::ImageData;
 
@@ -66,7 +66,7 @@ impl CanvasBuilder {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn build<G>(&self, ctx: &mut Context<G>) -> Result<Canvas> {
+    pub fn build(&self, ctx: &mut TetraContext) -> Result<Canvas> {
         let attachments = ctx.device.new_canvas(
             self.width,
             self.height,
@@ -123,7 +123,7 @@ impl Canvas {
     ///
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
-    pub fn new<G>(ctx: &mut Context<G>, width: i32, height: i32) -> Result<Canvas> {
+    pub fn new(ctx: &mut TetraContext, width: i32, height: i32) -> Result<Canvas> {
         CanvasBuilder::new(width, height).build(ctx)
     }
 
@@ -150,14 +150,14 @@ impl Canvas {
     /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if the underlying
     /// graphics API encounters an error.
     #[deprecated(since = "0.6.4", note = "use Canvas::builder instead")]
-    pub fn multisampled<G>(ctx: &mut Context<G>, width: i32, height: i32, samples: u8) -> Result<Canvas> {
+    pub fn multisampled(ctx: &mut TetraContext, width: i32, height: i32, samples: u8) -> Result<Canvas> {
         CanvasBuilder::new(width, height)
             .samples(samples)
             .build(ctx)
     }
 
     /// Draws the canvas to the screen (or to another canvas, if one is enabled).
-    pub fn draw<G, P>(&self, ctx: &mut Context<G>, params: P)
+    pub fn draw<P>(&self, ctx: &mut TetraContext, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -185,7 +185,7 @@ impl Canvas {
     }
 
     /// Sets the filter mode that should be used by the canvas.
-    pub fn set_filter_mode<G>(&mut self, ctx: &mut Context<G>, filter_mode: FilterMode) {
+    pub fn set_filter_mode(&mut self, ctx: &mut TetraContext, filter_mode: FilterMode) {
         self.texture.set_filter_mode(ctx, filter_mode);
     }
 
@@ -200,7 +200,7 @@ impl Canvas {
     /// pending draw calls are reflected in the output. Similarly, if the canvas is
     /// multisampled, it must be [resolved](#resolving) before
     /// changes will be reflected in this method's output.
-    pub fn get_data<G>(&self, ctx: &mut Context<G>) -> ImageData {
+    pub fn get_data(&self, ctx: &mut TetraContext) -> ImageData {
         self.texture.get_data(ctx)
     }
 
@@ -222,9 +222,9 @@ impl Canvas {
     /// # Panics
     ///
     /// Panics if any part of the target rectangle is outside the bounds of the canvas.
-    pub fn set_data<G>(
+    pub fn set_data(
         &self,
-        ctx: &mut Context<G>,
+        ctx: &mut TetraContext,
         x: i32,
         y: i32,
         width: i32,
@@ -248,7 +248,7 @@ impl Canvas {
     /// * [`TetraError::NotEnoughData`](crate::TetraError::NotEnoughData) will be returned
     /// if not enough data is provided to fill the target rectangle. This is to prevent
     /// the graphics API from trying to read uninitialized memory.
-    pub fn replace_data<G>(&self, ctx: &mut Context<G>, data: &[u8]) -> Result {
+    pub fn replace_data(&self, ctx: &mut TetraContext, data: &[u8]) -> Result {
         self.texture.replace_data(ctx, data)
     }
 

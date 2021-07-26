@@ -11,7 +11,7 @@ use crate::fs;
 use crate::graphics::{self, Color, DrawParams, Rectangle};
 use crate::math::Vec2;
 use crate::platform::{GraphicsDevice, RawTexture};
-use crate::Context;
+use crate::context::TetraContext;
 
 #[derive(Debug)]
 pub(crate) struct TextureSharedData {
@@ -76,7 +76,7 @@ impl Texture {
     /// * [`TetraError::PlatformError`] will be returned if the underlying graphics API encounters an error.
     /// * [`TetraError::FailedToLoadAsset`] will be returned if the file could not be loaded.
     /// * [`TetraError::InvalidTexture`] will be returned if the texture data was invalid.
-    pub fn new<G, P>(ctx: &mut Context<G>, path: P) -> Result<Texture>
+    pub fn new<P>(ctx: &mut TetraContext, path: P) -> Result<Texture>
     where
         P: AsRef<Path>,
     {
@@ -99,7 +99,7 @@ impl Texture {
     ///
     /// * [`TetraError::PlatformError`] will be returned if the underlying graphics API encounters an error.
     /// * [`TetraError::InvalidTexture`] will be returned if the texture data was invalid.
-    pub fn from_file_data<G>(ctx: &mut Context<G>, data: &[u8]) -> Result<Texture> {
+    pub fn from_file_data(ctx: &mut TetraContext, data: &[u8]) -> Result<Texture> {
         let data = ImageData::from_file_data(data)?;
         Texture::from_image_data(ctx, &data)
     }
@@ -109,7 +109,7 @@ impl Texture {
     /// # Errors
     ///
     /// * [`TetraError::PlatformError`] will be returned if the underlying graphics API encounters an error.
-    pub fn from_image_data<G>(ctx: &mut Context<G>, data: &ImageData) -> Result<Texture> {
+    pub fn from_image_data(ctx: &mut TetraContext, data: &ImageData) -> Result<Texture> {
         Texture::from_rgba(ctx, data.width(), data.height(), data.as_bytes())
     }
 
@@ -126,7 +126,7 @@ impl Texture {
     /// * [`TetraError::PlatformError`] will be returned if the underlying graphics API encounters an error.
     /// * [`TetraError::NotEnoughData`] will be returned if not enough data is provided to fill
     /// the texture. This is to prevent the graphics API from trying to read uninitialized memory.
-    pub fn from_rgba<G>(ctx: &mut Context<G>, width: i32, height: i32, data: &[u8]) -> Result<Texture> {
+    pub fn from_rgba(ctx: &mut TetraContext, width: i32, height: i32, data: &[u8]) -> Result<Texture> {
         Texture::with_device(
             &mut ctx.device,
             width,
@@ -178,7 +178,7 @@ impl Texture {
     }
 
     /// Draws the texture to the screen (or to a canvas, if one is enabled).
-    pub fn draw<G, P>(&self, ctx: &mut Context<G>, params: P)
+    pub fn draw<P>(&self, ctx: &mut TetraContext, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -200,7 +200,7 @@ impl Texture {
     }
 
     /// Draws a region of the texture to the screen (or to a canvas, if one is enabled).
-    pub fn draw_region<G, P>(&self, ctx: &mut Context<G>, region: Rectangle, params: P)
+    pub fn draw_region<P>(&self, ctx: &mut TetraContext, region: Rectangle, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -226,9 +226,9 @@ impl Texture {
 
     /// Draws a region of the texture by splitting it into nine slices, allowing it to be stretched or
     /// squashed without distorting the borders.
-    pub fn draw_nine_slice<G, P>(
+    pub fn draw_nine_slice<P>(
         &self,
-        ctx: &mut Context<G>,
+        ctx: &mut TetraContext,
         config: &NineSlice,
         width: f32,
         height: f32,
@@ -310,7 +310,7 @@ impl Texture {
     }
 
     /// Sets the filter mode that should be used by the texture.
-    pub fn set_filter_mode<G>(&mut self, ctx: &mut Context<G>, filter_mode: FilterMode) {
+    pub fn set_filter_mode(&mut self, ctx: &mut TetraContext, filter_mode: FilterMode) {
         ctx.device
             .set_texture_filter_mode(&self.data.handle, filter_mode);
 
@@ -322,7 +322,7 @@ impl Texture {
     /// This can be useful if you need to do some image processing on the CPU,
     /// or if you want to output the image data somewhere. This is a fairly
     /// slow operation, so avoid doing it too often!
-    pub fn get_data<G>(&self, ctx: &mut Context<G>) -> ImageData {
+    pub fn get_data(&self, ctx: &mut TetraContext) -> ImageData {
         let (width, height) = self.size();
         let buffer = ctx.device.get_texture_data(&self.data.handle);
 
@@ -347,9 +347,9 @@ impl Texture {
     /// # Panics
     ///
     /// Panics if any part of the target rectangle is outside the bounds of the texture.
-    pub fn set_data<G>(
+    pub fn set_data(
         &self,
-        ctx: &mut Context<G>,
+        ctx: &mut TetraContext,
         x: i32,
         y: i32,
         width: i32,
@@ -373,7 +373,7 @@ impl Texture {
     ///
     /// * [`TetraError::NotEnoughData`] will be returned if not enough data is provided to fill
     /// the texture. This is to prevent the graphics API from trying to read uninitialized memory.
-    pub fn replace_data<G>(&self, ctx: &mut Context<G>, data: &[u8]) -> Result {
+    pub fn replace_data(&self, ctx: &mut TetraContext, data: &[u8]) -> Result {
         let (width, height) = self.size();
         self.set_data(ctx, 0, 0, width, height, data)
     }
@@ -601,7 +601,7 @@ impl ImageData {
     /// # Errors
     ///
     /// * [`TetraError::PlatformError`] will be returned if the underlying graphics API encounters an error.
-    pub fn to_texture<G>(&self, ctx: &mut Context<G>) -> Result<Texture> {
+    pub fn to_texture(&self, ctx: &mut TetraContext) -> Result<Texture> {
         Texture::from_image_data(ctx, self)
     }
 

@@ -8,7 +8,7 @@ use hashbrown::HashMap;
 use crate::graphics::text::cache::{RasterizedGlyph, Rasterizer};
 use crate::graphics::{ImageData, Rectangle};
 use crate::math::Vec2;
-use crate::{fs, Context};
+use crate::{fs, context::TetraContext};
 use crate::{Result, TetraError};
 
 use super::cache::FontCache;
@@ -216,7 +216,7 @@ impl BmFontBuilder {
     ///   or if there was no path specified for one of the image files.
     /// * [`TetraError::PlatformError`] will be returned if the GPU cache for the font
     ///   could not be created.
-    pub fn build<G>(self, ctx: &mut Context<G>) -> Result<Font> {
+    pub fn build(self, ctx: &mut TetraContext) -> Result<Font> {
         let rasterizer: Box<dyn Rasterizer> = Box::new(BmFontRasterizer::new(
             &self.font,
             self.image_dir,

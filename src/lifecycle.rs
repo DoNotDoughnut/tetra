@@ -25,7 +25,7 @@ use crate::{Context, TetraError};
 /// The [`error_handling`](https://github.com/17cupsofcoffee/tetra/blob/main/examples/error_handling.rs)
 /// example demonstrates how custom error types can be used to implement more robust error handling.
 #[allow(unused_variables)]
-pub trait State<G, E = TetraError> {
+pub trait State<G = (), E = TetraError> {
 
     /// Called before the game loop starts
     fn begin(&mut self, ctx: &mut Context<G>) -> Result<(), E> {

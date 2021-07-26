@@ -1,22 +1,22 @@
 //! Functions and types relating to the game window, and the environment it is running in.
 
-use crate::{Context, Result};
+use crate::{context::TetraContext, Result};
 
 /// Quits the game, if it is currently running.
 ///
 /// Note that quitting the game does not take effect until the end of the current
 /// cycle of the game loop. This will probably change later.
-pub fn quit<G>(ctx: &mut Context<G>) {
+pub fn quit(ctx: &mut TetraContext) {
     ctx.running = false;
 }
 
 /// Gets the current title of the window.
-pub fn get_title<G>(ctx: &Context<G>) -> &str {
+pub fn get_title(ctx: &TetraContext) -> &str {
     ctx.window.get_window_title()
 }
 
 /// Sets the title of the window.
-pub fn set_title<G, S>(ctx: &mut Context<G>, title: S)
+pub fn set_title<S>(ctx: &mut TetraContext, title: S)
 where
     S: AsRef<str>,
 {
@@ -28,7 +28,7 @@ where
 /// This function will return a consistent value regardless of whether
 /// [high DPI support](crate::ContextBuilder::high_dpi) is enabled. To find
 /// the physical width of the window, call [`get_physical_width`].
-pub fn get_width<G>(ctx: &Context<G>) -> i32 {
+pub fn get_width(ctx: &TetraContext) -> i32 {
     ctx.window.get_window_size().0
 }
 
@@ -38,7 +38,7 @@ pub fn get_width<G>(ctx: &Context<G>) -> i32 {
 ///
 /// * [`TetraError::FailedToChangeDisplayMode`](crate::TetraError::FailedToChangeDisplayMode)
 /// will be returned if the game was unable to change the window size.
-pub fn set_width<G>(ctx: &mut Context<G>, width: i32) -> Result {
+pub fn set_width(ctx: &mut TetraContext, width: i32) -> Result {
     set_size(ctx, width, ctx.window.get_window_size().1)
 }
 
@@ -47,7 +47,7 @@ pub fn set_width<G>(ctx: &mut Context<G>, width: i32) -> Result {
 /// This function will return a consistent value regardless of whether
 /// [high DPI support](crate::ContextBuilder::high_dpi) is enabled. To find
 /// the physical height of the window, call [`get_physical_height`].
-pub fn get_height<G>(ctx: &Context<G>) -> i32 {
+pub fn get_height(ctx: &TetraContext) -> i32 {
     ctx.window.get_window_size().1
 }
 
@@ -57,7 +57,7 @@ pub fn get_height<G>(ctx: &Context<G>) -> i32 {
 ///
 /// * [`TetraError::FailedToChangeDisplayMode`](crate::TetraError::FailedToChangeDisplayMode)
 /// will be returned if the game was unable to change the window size.
-pub fn set_height<G>(ctx: &mut Context<G>, height: i32) -> Result {
+pub fn set_height(ctx: &mut TetraContext, height: i32) -> Result {
     set_size(ctx, ctx.window.get_window_size().0, height)
 }
 
@@ -66,7 +66,7 @@ pub fn set_height<G>(ctx: &mut Context<G>, height: i32) -> Result {
 /// This function will return a consistent value regardless of whether
 /// [high DPI support](crate::ContextBuilder::high_dpi) is enabled. To find
 /// the physical size of the window, call [`get_physical_size`].
-pub fn get_size<G>(ctx: &Context<G>) -> (i32, i32) {
+pub fn get_size(ctx: &TetraContext) -> (i32, i32) {
     ctx.window.get_window_size()
 }
 
@@ -76,7 +76,7 @@ pub fn get_size<G>(ctx: &Context<G>) -> (i32, i32) {
 ///
 /// * [`TetraError::FailedToChangeDisplayMode`](crate::TetraError::FailedToChangeDisplayMode)
 /// will be returned if the game was unable to change the window size.
-pub fn set_size<G>(ctx: &mut Context<G>, width: i32, height: i32) -> Result {
+pub fn set_size(ctx: &mut TetraContext, width: i32, height: i32) -> Result {
     ctx.window.set_window_size(width, height)
 }
 
@@ -84,7 +84,7 @@ pub fn set_size<G>(ctx: &mut Context<G>, width: i32, height: i32) -> Result {
 ///
 /// The output of this function may differ from the output of [`get_width`] if
 /// [high DPI support](crate::ContextBuilder::high_dpi) is enabled.
-pub fn get_physical_width<G>(ctx: &Context<G>) -> i32 {
+pub fn get_physical_width(ctx: &TetraContext) -> i32 {
     ctx.window.get_physical_size().0
 }
 
@@ -92,7 +92,7 @@ pub fn get_physical_width<G>(ctx: &Context<G>) -> i32 {
 ///
 /// The output of this function may differ from the output of [`get_height`] if
 /// [high DPI support](crate::ContextBuilder::high_dpi) is enabled.
-pub fn get_physical_height<G>(ctx: &Context<G>) -> i32 {
+pub fn get_physical_height(ctx: &TetraContext) -> i32 {
     ctx.window.get_physical_size().1
 }
 
@@ -100,7 +100,7 @@ pub fn get_physical_height<G>(ctx: &Context<G>) -> i32 {
 ///
 /// The output of this function may differ from the output of [`get_size`] if
 /// [high DPI support](crate::ContextBuilder::high_dpi) is enabled.
-pub fn get_physical_size<G>(ctx: &Context<G>) -> (i32, i32) {
+pub fn get_physical_size(ctx: &TetraContext) -> (i32, i32) {
     ctx.window.get_physical_size()
 }
 
@@ -110,7 +110,7 @@ pub fn get_physical_size<G>(ctx: &Context<G>) -> (i32, i32) {
 /// This will usually be `1.0`, but if [high DPI support](crate::ContextBuilder::high_dpi)
 /// is enabled and the monitor is high DPI, it may be higher. For example, on a Mac with
 /// a retina display, this can return `2.0`.
-pub fn get_dpi_scale<G>(ctx: &Context<G>) -> f32 {
+pub fn get_dpi_scale(ctx: &TetraContext) -> f32 {
     ctx.window.get_dpi_scale()
 }
 
@@ -118,12 +118,12 @@ pub fn get_dpi_scale<G>(ctx: &Context<G>) -> f32 {
 ///
 /// Note that a minimized window is still considered 'visible', as the user is able
 /// to restore it if they want to.
-pub fn is_visible<G>(ctx: &mut Context<G>) -> bool {
+pub fn is_visible(ctx: &mut TetraContext) -> bool {
     ctx.window.is_visible()
 }
 
 /// Sets whether or not the window should be visible to the user.
-pub fn set_visible<G>(ctx: &mut Context<G>, visible: bool) {
+pub fn set_visible(ctx: &mut TetraContext, visible: bool) {
     ctx.window.set_visible(visible);
 }
 
@@ -133,12 +133,12 @@ pub fn set_visible<G>(ctx: &mut Context<G>, visible: bool) {
 ///
 /// * [`TetraError::FailedToChangeDisplayMode`](crate::TetraError::FailedToChangeDisplayMode)
 /// will be returned if the game was unable to change vsync mode.
-pub fn set_vsync<G>(ctx: &mut Context<G>, vsync: bool) -> Result {
+pub fn set_vsync(ctx: &mut TetraContext, vsync: bool) -> Result {
     ctx.window.set_vsync(vsync)
 }
 
 /// Returns whether or not vsync is enabled.
-pub fn is_vsync_enabled<G>(ctx: &Context<G>) -> bool {
+pub fn is_vsync_enabled(ctx: &TetraContext) -> bool {
     ctx.window.is_vsync_enabled()
 }
 
@@ -148,12 +148,12 @@ pub fn is_vsync_enabled<G>(ctx: &Context<G>) -> bool {
 ///
 /// * [`TetraError::FailedToChangeDisplayMode`](crate::TetraError::FailedToChangeDisplayMode)
 /// will be returned if the game was unable to enter or exit fullscreen.
-pub fn set_fullscreen<G>(ctx: &mut Context<G>, fullscreen: bool) -> Result {
+pub fn set_fullscreen(ctx: &mut TetraContext, fullscreen: bool) -> Result {
     ctx.window.set_fullscreen(fullscreen)
 }
 
 /// Returns whether or not the window is currently in fullscreen mode.
-pub fn is_fullscreen<G>(ctx: &Context<G>) -> bool {
+pub fn is_fullscreen(ctx: &TetraContext) -> bool {
     ctx.window.is_fullscreen()
 }
 
@@ -163,12 +163,12 @@ pub fn is_fullscreen<G>(ctx: &Context<G>) -> bool {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned if
 /// the cursor state was inaccessible.
-pub fn set_mouse_visible<G>(ctx: &mut Context<G>, visible: bool) -> Result {
+pub fn set_mouse_visible(ctx: &mut TetraContext, visible: bool) -> Result {
     ctx.window.set_mouse_visible(visible)
 }
 
 /// Returns whether or not the mouse cursor is currently visible.
-pub fn is_mouse_visible<G>(ctx: &Context<G>) -> bool {
+pub fn is_mouse_visible(ctx: &TetraContext) -> bool {
     ctx.window.is_mouse_visible()
 }
 
@@ -176,7 +176,7 @@ pub fn is_mouse_visible<G>(ctx: &Context<G>) -> bool {
 ///
 /// When this is active, the cursor will not be able to leave the window while it
 /// is focused.
-pub fn set_mouse_grabbed<G>(ctx: &mut Context<G>, mouse_grabbed: bool) {
+pub fn set_mouse_grabbed(ctx: &mut TetraContext, mouse_grabbed: bool) {
     ctx.window.set_mouse_grabbed(mouse_grabbed);
 }
 
@@ -184,7 +184,7 @@ pub fn set_mouse_grabbed<G>(ctx: &mut Context<G>, mouse_grabbed: bool) {
 ///
 /// When this is active, the cursor will not be able to leave the window while it
 /// is focused.
-pub fn is_mouse_grabbed<G>(ctx: &Context<G>) -> bool {
+pub fn is_mouse_grabbed(ctx: &TetraContext) -> bool {
     ctx.window.is_mouse_grabbed()
 }
 
@@ -198,7 +198,7 @@ pub fn is_mouse_grabbed<G>(ctx: &Context<G>) -> bool {
 ///
 /// While this mode is enabled, the absolute position of the mouse may not be updated -
 /// as such, you should not rely on it.
-pub fn set_relative_mouse_mode<G>(ctx: &mut Context<G>, relative_mouse_mode: bool) {
+pub fn set_relative_mouse_mode(ctx: &mut TetraContext, relative_mouse_mode: bool) {
     ctx.window.set_relative_mouse_mode(relative_mouse_mode);
 }
 
@@ -212,7 +212,7 @@ pub fn set_relative_mouse_mode<G>(ctx: &mut Context<G>, relative_mouse_mode: boo
 ///
 /// While this mode is enabled, the absolute position of the mouse may not be updated -
 /// as such, you should not rely on it.
-pub fn is_relative_mouse_mode<G>(ctx: &Context<G>) -> bool {
+pub fn is_relative_mouse_mode(ctx: &TetraContext) -> bool {
     ctx.window.is_relative_mouse_mode()
 }
 
@@ -222,7 +222,7 @@ pub fn is_relative_mouse_mode<G>(ctx: &Context<G>) -> bool {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_monitor_count<G>(ctx: &Context<G>) -> Result<i32> {
+pub fn get_monitor_count(ctx: &TetraContext) -> Result<i32> {
     ctx.window.get_monitor_count()
 }
 
@@ -232,7 +232,7 @@ pub fn get_monitor_count<G>(ctx: &Context<G>) -> Result<i32> {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_monitor_name<G>(ctx: &Context<G>, monitor_index: i32) -> Result<String> {
+pub fn get_monitor_name(ctx: &TetraContext, monitor_index: i32) -> Result<String> {
     ctx.window.get_monitor_name(monitor_index)
 }
 
@@ -242,7 +242,7 @@ pub fn get_monitor_name<G>(ctx: &Context<G>, monitor_index: i32) -> Result<Strin
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_monitor_width<G>(ctx: &Context<G>, monitor_index: i32) -> Result<i32> {
+pub fn get_monitor_width(ctx: &TetraContext, monitor_index: i32) -> Result<i32> {
     get_monitor_size(ctx, monitor_index).map(|(w, _)| w)
 }
 
@@ -252,7 +252,7 @@ pub fn get_monitor_width<G>(ctx: &Context<G>, monitor_index: i32) -> Result<i32>
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_monitor_height<G>(ctx: &Context<G>, monitor_index: i32) -> Result<i32> {
+pub fn get_monitor_height(ctx: &TetraContext, monitor_index: i32) -> Result<i32> {
     get_monitor_size(ctx, monitor_index).map(|(_, h)| h)
 }
 
@@ -262,7 +262,7 @@ pub fn get_monitor_height<G>(ctx: &Context<G>, monitor_index: i32) -> Result<i32
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_monitor_size<G>(ctx: &Context<G>, monitor_index: i32) -> Result<(i32, i32)> {
+pub fn get_monitor_size(ctx: &TetraContext, monitor_index: i32) -> Result<(i32, i32)> {
     ctx.window.get_monitor_size(monitor_index)
 }
 
@@ -272,7 +272,7 @@ pub fn get_monitor_size<G>(ctx: &Context<G>, monitor_index: i32) -> Result<(i32,
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_current_monitor<G>(ctx: &Context<G>) -> Result<i32> {
+pub fn get_current_monitor(ctx: &TetraContext) -> Result<i32> {
     ctx.window.get_current_monitor()
 }
 
@@ -282,7 +282,7 @@ pub fn get_current_monitor<G>(ctx: &Context<G>) -> Result<i32> {
 ///
 /// * [[`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_current_monitor_name<G>(ctx: &Context<G>) -> Result<String> {
+pub fn get_current_monitor_name(ctx: &TetraContext) -> Result<String> {
     let monitor_index = ctx.window.get_current_monitor()?;
     ctx.window.get_monitor_name(monitor_index)
 }
@@ -293,7 +293,7 @@ pub fn get_current_monitor_name<G>(ctx: &Context<G>) -> Result<String> {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_current_monitor_width<G>(ctx: &Context<G>) -> Result<i32> {
+pub fn get_current_monitor_width(ctx: &TetraContext) -> Result<i32> {
     get_current_monitor_size(ctx).map(|(w, _)| w)
 }
 
@@ -303,7 +303,7 @@ pub fn get_current_monitor_width<G>(ctx: &Context<G>) -> Result<i32> {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_current_monitor_height<G>(ctx: &Context<G>) -> Result<i32> {
+pub fn get_current_monitor_height(ctx: &TetraContext) -> Result<i32> {
     get_current_monitor_size(ctx).map(|(_, h)| h)
 }
 
@@ -313,18 +313,18 @@ pub fn get_current_monitor_height<G>(ctx: &Context<G>) -> Result<i32> {
 ///
 /// * [`TetraError::PlatformError`](crate::TetraError::PlatformError) will be returned
 /// if the monitor state was inaccessible.
-pub fn get_current_monitor_size<G>(ctx: &Context<G>) -> Result<(i32, i32)> {
+pub fn get_current_monitor_size(ctx: &TetraContext) -> Result<(i32, i32)> {
     let monitor_index = ctx.window.get_current_monitor()?;
     ctx.window.get_monitor_size(monitor_index)
 }
 
 /// Sets whether or not the user's screen saver can be displayed while the game is running.
-pub fn set_screen_saver_enabled<G>(ctx: &Context<G>, screen_saver_enabled: bool) {
+pub fn set_screen_saver_enabled(ctx: &TetraContext, screen_saver_enabled: bool) {
     ctx.window.set_screen_saver_enabled(screen_saver_enabled);
 }
 
 /// Returns whether or not the user's screen saver can be displayed while the game is running.
-pub fn is_screen_saver_enabled<G>(ctx: &Context<G>) -> bool {
+pub fn is_screen_saver_enabled(ctx: &TetraContext) -> bool {
     ctx.window.is_screen_saver_enabled()
 }
 
@@ -333,7 +333,7 @@ pub fn is_screen_saver_enabled<G>(ctx: &Context<G>) -> bool {
 /// Normally, a [`KeyPressed`](crate::Event::KeyPressed) event will only be fired once, when
 /// the key is initially pressed. Enabling key repeat causes `KeyPressed` events to be fired
 /// continuously while the key is held down.
-pub fn set_key_repeat_enabled<G>(ctx: &mut Context<G>, key_repeat_enabled: bool) {
+pub fn set_key_repeat_enabled(ctx: &mut TetraContext, key_repeat_enabled: bool) {
     ctx.window.set_key_repeat_enabled(key_repeat_enabled);
 }
 
@@ -342,6 +342,6 @@ pub fn set_key_repeat_enabled<G>(ctx: &mut Context<G>, key_repeat_enabled: bool)
 /// Normally, a [`KeyPressed`](crate::Event::KeyPressed) event will only be fired once, when
 /// the key is initially pressed. Enabling key repeat causes `KeyPressed` events to be fired
 /// continuously while the key is held down.
-pub fn is_key_repeat_enabled<G>(ctx: &Context<G>) -> bool {
+pub fn is_key_repeat_enabled(ctx: &TetraContext) -> bool {
     ctx.window.is_key_repeat_enabled()
 }
