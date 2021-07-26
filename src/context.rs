@@ -455,6 +455,7 @@ impl ContextBuilder {
         Ok(Context {
             window: ctx.window,
             device: ctx.device,
+            #[cfg(feature = "audio")]
             audio: ctx.audio,
             graphics: ctx.graphics,
             input: ctx.input,
