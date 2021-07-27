@@ -1,6 +1,6 @@
 use crate::graphics::{FilterMode, Texture};
 use crate::platform::GraphicsDevice;
-use crate::{context::TetraContext, Result};
+use crate::{context::Context, Result};
 
 /// An individual shelf within the packed atlas, tracking how much space
 /// is currently taken up.
@@ -49,7 +49,7 @@ impl ShelfPacker {
         self.texture.filter_mode()
     }
 
-    pub fn set_filter_mode(&mut self, ctx: &mut TetraContext, filter_mode: FilterMode) {
+    pub fn set_filter_mode(&mut self, ctx: &mut Context, filter_mode: FilterMode) {
         self.texture.set_filter_mode(ctx, filter_mode);
     }
 

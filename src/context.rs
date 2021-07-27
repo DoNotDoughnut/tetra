@@ -1,6 +1,9 @@
-use std::{ops::{Deref, DerefMut}, result};
-use std::thread;
+use std::{ops::Deref, thread};
 use std::time::{Duration, Instant};
+use std::{
+    ops::{DerefMut},
+    result,
+};
 
 use crate::graphics::{self, GraphicsContext};
 use crate::input::{self, InputContext};
@@ -12,7 +15,7 @@ use crate::{Result, State, TetraError};
 use crate::audio::AudioDevice;
 
 /// A struct containing all of the 'global' state within the framework.
-pub struct TetraContext {
+pub struct Context {
     pub(crate) window: Window,
     pub(crate) device: GraphicsDevice,
     #[cfg(feature = "audio")]
@@ -25,7 +28,7 @@ pub struct TetraContext {
     pub(crate) quit_on_escape: bool,
 }
 
-impl TetraContext {
+impl Context {
     pub(crate) fn new(settings: &ContextBuilder) -> Result<Self> {
         // This needs to be initialized ASAP to avoid https://github.com/tomaka/rodio/issues/214
         #[cfg(feature = "audio")]
@@ -62,31 +65,6 @@ impl TetraContext {
         })
     }
 
-}
-
-/// A struct containing all of the 'global' state within the framework in addition to a user provided global state.
-pub struct Context<G> {
-    /// Contains all of Tetra's 'global' state used within the framework.
-    pub tetra: TetraContext,
-    /// Custom global field stored in game context that user can modify
-    pub game: G,
-}
-
-impl<G> Deref for Context<G> {
-    type Target = TetraContext;
-
-    fn deref(&self) -> &Self::Target {
-        &self.tetra
-    }
-}
-
-impl<G> DerefMut for Context<G> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.tetra
-    }
-}
-
-impl<G> Context<G> {
 
     /// Runs the game.
     ///
@@ -113,104 +91,170 @@ impl<G> Context<G> {
     /// struct GameState;
     ///
     /// impl GameState {
-    ///     fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
+    ///     fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
     ///         Ok(GameState)
     ///     }
     /// }
     ///
-    /// impl State<()> for GameState { }
+    /// impl State for GameState { }
     ///
     /// fn main() -> tetra::Result {
     ///     // Because GameState::new takes `&mut Context` and returns a `State` implementation
     ///     // wrapped in a `Result`, you can use it without a closure wrapper:
     ///     ContextBuilder::new("Hello, world!", 1280, 720)
-    ///         .build(|_| Ok(()))?
+    ///         .build()?
     ///         .run(GameState::new)
     /// }
     /// ```
     ///
-    pub fn run<S, F, E>(&mut self, init: F) -> result::Result<(), E>
-    where
-        S: State<G, E>,
-        F: FnOnce(&mut Self) -> result::Result<S, E>,
-        E: From<TetraError>,
-    {
-        let state = &mut init(self)?;
-
-        time::reset(self);
-
-        let mut output = Ok(());
-
-        state.begin(self)?;
-
-        self.running = true;
-        self.window.set_visible(true);
-
-        if let Err(e) = self.game_loop(state) {
-            output = Err(e);
-        }
-
-        self.running = false;
-        self.window.set_visible(false);
-
-        state.end(self)?;
-
-        output
+    pub fn run<S: State<DefaultContext, TetraError>, F: FnOnce(&mut DefaultContext) -> result::Result<S, TetraError>>(self, init: F) -> Result {
+        run::<DefaultContext, S, F, TetraError>(&mut DefaultContext(self), init)
     }
 
-    pub(crate) fn game_loop<S, E>(&mut self, state: &mut S) -> result::Result<(), E>
-    where
-        S: State<G, E>,
-        E: From<TetraError>,
-    {
-        let mut last_time = Instant::now();
+}
 
-        while self.running {
-            let curr_time = Instant::now();
-            let diff_time = curr_time - last_time;
-            last_time = curr_time;
+/// Default Context wrapper
+#[repr(transparent)]
+pub struct DefaultContext(Context);
 
-            // Since we fill the buffer when we create the context, we can cycle it
-            // here and it shouldn't reallocate.
-            self.time.fps_tracker.pop_front();
-            self.time.fps_tracker.push_back(diff_time.as_secs_f64());
+impl Deref for DefaultContext {
+    type Target = Context;
 
-            platform::handle_events(self, state)?;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
-            match self.time.tick_rate {
-                Some(tick_rate) => {
-                    self.time.delta_time = tick_rate;
-                    self.time.accumulator = (self.time.accumulator + diff_time).min(tick_rate * 8);
+impl DerefMut for DefaultContext {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
 
-                    while self.time.accumulator >= tick_rate {
-                        state.update(self)?;
-                        input::clear(self);
+/// Runs the game.
+///
+/// The `init` parameter takes a function or closure that creates a
+/// `State` implementation. A common pattern is to use method references
+/// to pass in your state's constructor directly - see the example below
+/// for how this works.
+///
+/// The error type returned by your `init` closure currently must match the error
+/// type returned by your [`State`] methods. This limitation may be lifted
+/// in the future.
+///
+/// # Errors
+///
+/// If the [`State`] returns an error from [`update`](State::update), [`draw`](State::draw)
+/// or [`event`](State::event), the game will stop running and this method will
+/// return the error.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tetra::{Context, ContextBuilder, State};
+///
+/// struct GameState;
+///
+/// impl GameState {
+///     fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+///         Ok(GameState)
+///     }
+/// }
+///
+/// impl State for GameState { }
+///
+/// fn main() -> tetra::Result {
+///     // Because GameState::new takes `&mut Context` and returns a `State` implementation
+///     // wrapped in a `Result`, you can use it without a closure wrapper:
+///     ContextBuilder::new("Hello, world!", 1280, 720)
+///         .build()?
+///         .run(GameState::new)
+/// }
+/// ```
+///
+pub fn run<C, S, F, E>(ctx: &mut C, init: F) -> result::Result<(), E>
+where
+    C: DerefMut<Target = Context>,
+    S: State<C, E>,
+    F: FnOnce(&mut C) -> result::Result<S, E>,
+    E: From<TetraError>,
+{
+    let state = &mut init(ctx)?;
 
-                        self.time.accumulator -= tick_rate;
-                    }
+    time::reset(ctx);
 
-                    self.time.delta_time = diff_time;
+    let mut output = Ok(());
+
+    state.begin(ctx)?;
+
+    ctx.running = true;
+    ctx.window.set_visible(true);
+
+    if let Err(e) = game_loop(ctx, state) {
+        output = Err(e);
+    }
+
+    ctx.running = false;
+    ctx.window.set_visible(false);
+
+    state.end(ctx)?;
+
+    output
+}
+
+pub(crate) fn game_loop<C, S, E>(ctx: &mut C, state: &mut S) -> result::Result<(), E>
+where
+    C: DerefMut<Target = Context>,
+    S: State<C, E>,
+    E: From<TetraError>,
+{
+    let mut last_time = Instant::now();
+
+    while ctx.running {
+        let curr_time = Instant::now();
+        let diff_time = curr_time - last_time;
+        last_time = curr_time;
+
+        // Since we fill the buffer when we create the context, we can cycle it
+        // here and it shouldn't reallocate.
+        ctx.time.fps_tracker.pop_front();
+        ctx.time.fps_tracker.push_back(diff_time.as_secs_f64());
+
+        platform::handle_events(ctx, state)?;
+
+        match ctx.time.tick_rate {
+            Some(tick_rate) => {
+                ctx.time.delta_time = tick_rate;
+                ctx.time.accumulator = (ctx.time.accumulator + diff_time).min(tick_rate * 8);
+
+                while ctx.time.accumulator >= tick_rate {
+                    state.update(ctx)?;
+                    input::clear(ctx);
+
+                    ctx.time.accumulator -= tick_rate;
                 }
 
-                None => {
-                    self.time.delta_time = diff_time;
-
-                    state.update(self)?;
-                    input::clear(self);
-                }
+                ctx.time.delta_time = diff_time;
             }
 
-            state.draw(self)?;
+            None => {
+                ctx.time.delta_time = diff_time;
 
-            graphics::present(self);
-
-            // This provides a sensible FPS limit when running without vsync, and
-            // avoids CPU usage skyrocketing on some systems.
-            thread::sleep(Duration::from_millis(1));
+                state.update(ctx)?;
+                input::clear(ctx);
+            }
         }
 
-        Ok(())
+        state.draw(ctx)?;
+
+        graphics::present(ctx);
+
+        // This provides a sensible FPS limit when running without vsync, and
+        // avoids CPU usage skyrocketing on some systems.
+        thread::sleep(Duration::from_millis(1));
     }
+
+    Ok(())
 }
 
 /// Settings that can be configured when starting up a game.
@@ -471,13 +515,8 @@ impl ContextBuilder {
     /// # Errors
     ///
     /// * [`TetraError::PlatformError`] will be returned if the context cannot be initialized.
-    pub fn build<G, GC: FnOnce(&mut TetraContext) -> Result<G>>(&self, game_context: GC) -> Result<Context<G>> {
-        let mut ctx = TetraContext::new(self)?;
-        let game_context = (game_context)(&mut ctx)?;
-        Ok(Context {
-            tetra: ctx,
-            game: game_context,
-        })
+    pub fn build(&self) -> Result<Context> {
+        Context::new(self)
     }
 }
 

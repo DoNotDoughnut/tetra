@@ -2,7 +2,7 @@ use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::{self, Camera, Color, DrawParams, Texture};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, Event, State};
+use tetra::{DefaultContext, ContextBuilder, Event, State};
 
 const MOVEMENT_SPEED: f32 = 4.0;
 const ROTATION_SPEED: f32 = 0.1;
@@ -15,7 +15,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/player.png")?,
             scaler: ScreenScaler::with_window_size(
@@ -32,8 +32,8 @@ impl GameState {
     }
 }
 
-impl State<()> for GameState {
-    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+impl State for GameState {
+    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         if input::is_key_down(ctx, Key::W) {
             self.camera.position.y -= MOVEMENT_SPEED;
         }
@@ -71,7 +71,7 @@ impl State<()> for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
         graphics::clear(ctx, Color::rgb(0.769, 0.812, 0.631));
 
@@ -100,7 +100,7 @@ impl State<()> for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut Context<()>, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut DefaultContext, event: Event) -> tetra::Result {
         if let Event::Resized { width, height } = event {
             self.scaler.set_outer_size(width, height);
         }
@@ -113,6 +113,6 @@ fn main() -> tetra::Result {
     ContextBuilder::new("Cameras", 640, 480)
         .resizable(true)
         .quit_on_escape(true)
-        .build(|_| Ok(()))?
+        .build()?
         .run(GameState::new)
 }

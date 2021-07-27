@@ -1,7 +1,7 @@
 use hashbrown::{HashMap, HashSet};
 
 use crate::math::Vec2;
-use crate::context::TetraContext;
+use crate::context::Context;
 
 pub(crate) struct GamepadState {
     pub platform_id: u32,
@@ -118,12 +118,12 @@ pub enum GamepadStick {
 }
 
 /// Returns true if the specified gamepad is currently connected.
-pub fn is_gamepad_connected(ctx: &TetraContext, gamepad_id: usize) -> bool {
+pub fn is_gamepad_connected(ctx: &Context, gamepad_id: usize) -> bool {
     get_gamepad(ctx, gamepad_id).is_some()
 }
 
 /// Returns the name of the specified gamepad, or [`None`] if it is not connected.
-pub fn get_gamepad_name(ctx: &TetraContext, gamepad_id: usize) -> Option<String> {
+pub fn get_gamepad_name(ctx: &Context, gamepad_id: usize) -> Option<String> {
     get_gamepad(ctx, gamepad_id)
         .map(|g| g.platform_id)
         .map(|id| ctx.window.get_gamepad_name(id))
@@ -132,7 +132,7 @@ pub fn get_gamepad_name(ctx: &TetraContext, gamepad_id: usize) -> Option<String>
 /// Returns true if the specified gamepad button is currently down.
 ///
 /// If the gamepad is disconnected, this will always return `false`.
-pub fn is_gamepad_button_down(ctx: &TetraContext, gamepad_id: usize, button: GamepadButton) -> bool {
+pub fn is_gamepad_button_down(ctx: &Context, gamepad_id: usize, button: GamepadButton) -> bool {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
         pad.buttons_down.contains(&button)
     } else {
@@ -143,7 +143,7 @@ pub fn is_gamepad_button_down(ctx: &TetraContext, gamepad_id: usize, button: Gam
 /// Returns true if the specified gamepad button is currently up.
 ///
 /// If the gamepad is disconnected, this will always return `true`.
-pub fn is_gamepad_button_up(ctx: &TetraContext, gamepad_id: usize, button: GamepadButton) -> bool {
+pub fn is_gamepad_button_up(ctx: &Context, gamepad_id: usize, button: GamepadButton) -> bool {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
         !pad.buttons_down.contains(&button)
     } else {
@@ -154,7 +154,7 @@ pub fn is_gamepad_button_up(ctx: &TetraContext, gamepad_id: usize, button: Gamep
 /// Returns true if the specified gamepad button was pressed since the last update.
 ///
 /// If the gamepad is disconnected, this will always return `false`.
-pub fn is_gamepad_button_pressed(ctx: &TetraContext, gamepad_id: usize, button: GamepadButton) -> bool {
+pub fn is_gamepad_button_pressed(ctx: &Context, gamepad_id: usize, button: GamepadButton) -> bool {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
         pad.buttons_pressed.contains(&button)
     } else {
@@ -165,7 +165,7 @@ pub fn is_gamepad_button_pressed(ctx: &TetraContext, gamepad_id: usize, button: 
 /// Returns true if the specified gamepad button was released since the last update.
 ///
 /// If the gamepad is disconnected, this will always return `false`.
-pub fn is_gamepad_button_released(ctx: &TetraContext, gamepad_id: usize, button: GamepadButton) -> bool {
+pub fn is_gamepad_button_released(ctx: &Context, gamepad_id: usize, button: GamepadButton) -> bool {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
         pad.buttons_released.contains(&button)
     } else {
@@ -203,7 +203,7 @@ where
 ///
 /// If the gamepad is disconnected, an empty iterator will be returned.
 pub fn get_gamepad_buttons_down(
-    ctx: &TetraContext,
+    ctx: &Context,
     gamepad_id: usize,
 ) -> impl Iterator<Item = &GamepadButton> {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
@@ -217,7 +217,7 @@ pub fn get_gamepad_buttons_down(
 ///
 /// If the gamepad is disconnected, an empty iterator will be returned.
 pub fn get_gamepad_buttons_pressed(
-    ctx: &TetraContext,
+    ctx: &Context,
     gamepad_id: usize,
 ) -> impl Iterator<Item = &GamepadButton> {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
@@ -231,7 +231,7 @@ pub fn get_gamepad_buttons_pressed(
 ///
 /// If the gamepad is disconnected, an empty iterator will be returned.
 pub fn get_gamepad_buttons_released(
-    ctx: &TetraContext,
+    ctx: &Context,
     gamepad_id: usize,
 ) -> impl Iterator<Item = &GamepadButton> {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
@@ -244,7 +244,7 @@ pub fn get_gamepad_buttons_released(
 /// Returns the current position of the specified gamepad axis.
 ///
 /// If the gamepad is disconnected, this will always return `0.0`.
-pub fn get_gamepad_axis_position(ctx: &TetraContext, gamepad_id: usize, axis: GamepadAxis) -> f32 {
+pub fn get_gamepad_axis_position(ctx: &Context, gamepad_id: usize, axis: GamepadAxis) -> f32 {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
         if let Some(value) = pad.current_axis_state.get(&axis) {
             *value
@@ -260,7 +260,7 @@ pub fn get_gamepad_axis_position(ctx: &TetraContext, gamepad_id: usize, axis: Ga
 ///
 /// If the gamepad is disconnected, this will always return `(0.0, 0.0)`.
 pub fn get_gamepad_stick_position(
-    ctx: &TetraContext,
+    ctx: &Context,
     gamepad_id: usize,
     stick: GamepadStick,
 ) -> Vec2<f32> {
@@ -278,7 +278,7 @@ pub fn get_gamepad_stick_position(
 /// Returns true if the specified gamepad supports vibration.
 ///
 /// If the gamepad is disconnected, this will always return `false`.
-pub fn is_gamepad_vibration_supported(ctx: &TetraContext, gamepad_id: usize) -> bool {
+pub fn is_gamepad_vibration_supported(ctx: &Context, gamepad_id: usize) -> bool {
     if let Some(pad) = get_gamepad(ctx, gamepad_id) {
         ctx.window.is_gamepad_vibration_supported(pad.platform_id)
     } else {
@@ -287,7 +287,7 @@ pub fn is_gamepad_vibration_supported(ctx: &TetraContext, gamepad_id: usize) -> 
 }
 
 /// Sets the specified gamepad's motors to vibrate indefinitely.
-pub fn set_gamepad_vibration(ctx: &mut TetraContext, gamepad_id: usize, strength: f32) {
+pub fn set_gamepad_vibration(ctx: &mut Context, gamepad_id: usize, strength: f32) {
     if let Some(platform_id) = get_gamepad(ctx, gamepad_id).map(|g| g.platform_id) {
         ctx.window.set_gamepad_vibration(platform_id, strength);
     }
@@ -295,7 +295,7 @@ pub fn set_gamepad_vibration(ctx: &mut TetraContext, gamepad_id: usize, strength
 
 /// Sets the specified gamepad's motors to vibrate for a set duration, specified in milliseconds.
 /// After this time has passed, the vibration will automatically stop.
-pub fn start_gamepad_vibration(ctx: &mut TetraContext, gamepad_id: usize, strength: f32, duration: u32) {
+pub fn start_gamepad_vibration(ctx: &mut Context, gamepad_id: usize, strength: f32, duration: u32) {
     if let Some(platform_id) = get_gamepad(ctx, gamepad_id).map(|g| g.platform_id) {
         ctx.window
             .start_gamepad_vibration(platform_id, strength, duration);
@@ -303,13 +303,13 @@ pub fn start_gamepad_vibration(ctx: &mut TetraContext, gamepad_id: usize, streng
 }
 
 /// Stops the specified gamepad's motors from vibrating.
-pub fn stop_gamepad_vibration(ctx: &mut TetraContext, gamepad_id: usize) {
+pub fn stop_gamepad_vibration(ctx: &mut Context, gamepad_id: usize) {
     if let Some(platform_id) = get_gamepad(ctx, gamepad_id).map(|g| g.platform_id) {
         ctx.window.stop_gamepad_vibration(platform_id);
     }
 }
 
-pub(crate) fn add_gamepad(ctx: &mut TetraContext, platform_id: u32) -> usize {
+pub(crate) fn add_gamepad(ctx: &mut Context, platform_id: u32) -> usize {
     for (i, slot) in ctx.input.pads.iter_mut().enumerate() {
         if slot.is_none() {
             *slot = Some(GamepadState::new(platform_id));
@@ -323,11 +323,11 @@ pub(crate) fn add_gamepad(ctx: &mut TetraContext, platform_id: u32) -> usize {
     i
 }
 
-pub(crate) fn remove_gamepad(ctx: &mut TetraContext, gamepad_id: usize) {
+pub(crate) fn remove_gamepad(ctx: &mut Context, gamepad_id: usize) {
     ctx.input.pads[gamepad_id] = None;
 }
 
-pub(crate) fn get_gamepad(ctx: &TetraContext, gamepad_id: usize) -> Option<&GamepadState> {
+pub(crate) fn get_gamepad(ctx: &Context, gamepad_id: usize) -> Option<&GamepadState> {
     if let Some(Some(pad)) = ctx.input.pads.get(gamepad_id) {
         Some(pad)
     } else {
@@ -335,7 +335,7 @@ pub(crate) fn get_gamepad(ctx: &TetraContext, gamepad_id: usize) -> Option<&Game
     }
 }
 
-pub(crate) fn get_gamepad_mut(ctx: &mut TetraContext, gamepad_id: usize) -> Option<&mut GamepadState> {
+pub(crate) fn get_gamepad_mut(ctx: &mut Context, gamepad_id: usize) -> Option<&mut GamepadState> {
     if let Some(Some(pad)) = ctx.input.pads.get_mut(gamepad_id) {
         Some(pad)
     } else {

@@ -3,7 +3,7 @@ use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{self, Color};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, State};
+use tetra::{DefaultContext, ContextBuilder, State};
 
 const INSTRUCTIONS: &str = "\
 Press Space to 'fire and forget' a sound.
@@ -26,7 +26,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
         audio::set_master_volume(ctx, 0.4);
 
         let sound = Sound::new("./examples/resources/powerup.ogg")?;
@@ -47,8 +47,8 @@ impl GameState {
     }
 }
 
-impl State<()> for GameState {
-    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+impl State for GameState {
+    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         for key in input::get_keys_pressed(ctx) {
             match key {
                 Key::Space => {
@@ -77,7 +77,7 @@ impl State<()> for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         self.text.draw(ctx, Vec2::new(16.0, 16.0));
@@ -89,6 +89,6 @@ impl State<()> for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Audio Playback", 640, 480)
         .quit_on_escape(true)
-        .build(|_| Ok(()))?
+        .build()?
         .run(GameState::new)
 }

@@ -6,7 +6,7 @@ use crate::graphics::text::packer::ShelfPacker;
 use crate::graphics::{FilterMode, Rectangle, Texture};
 use crate::math::Vec2;
 use crate::platform::GraphicsDevice;
-use crate::{context::TetraContext, Result};
+use crate::{context::Context, Result};
 
 /// The data produced by rasterizing a glyph from a font.
 pub(crate) struct RasterizedGlyph {
@@ -132,7 +132,7 @@ impl FontCache {
         self.packer.filter_mode()
     }
 
-    pub fn set_filter_mode(&mut self, ctx: &mut TetraContext, filter_mode: FilterMode) {
+    pub fn set_filter_mode(&mut self, ctx: &mut Context, filter_mode: FilterMode) {
         self.packer.set_filter_mode(ctx, filter_mode);
     }
 

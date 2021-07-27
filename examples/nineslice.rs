@@ -1,6 +1,6 @@
 use tetra::graphics::{self, Color, NineSlice, Rectangle, Texture};
 use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, State};
+use tetra::{DefaultContext, ContextBuilder, State};
 
 struct GameState {
     texture: Texture,
@@ -8,7 +8,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
         let texture = Texture::new(ctx, "./examples/resources/panel.png")?;
 
         Ok(GameState {
@@ -18,8 +18,8 @@ impl GameState {
     }
 }
 
-impl State<()> for GameState {
-    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+impl State for GameState {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         graphics::clear(ctx, Color::BLACK);
 
         self.texture
@@ -32,6 +32,6 @@ impl State<()> for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Rendering a NineSlice", 640, 480)
         .quit_on_escape(true)
-        .build(|_| Ok(()))?
+        .build()?
         .run(GameState::new)
 }

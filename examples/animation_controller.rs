@@ -9,7 +9,7 @@ use tetra::graphics::animation::Animation;
 use tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, State};
+use tetra::{Context, ContextBuilder, DefaultContext, State};
 
 #[derive(PartialEq)]
 enum PlayerState {
@@ -24,7 +24,7 @@ struct PlayerAnimation {
 }
 
 impl PlayerAnimation {
-    fn new(ctx: &mut Context<()>) -> tetra::Result<PlayerAnimation> {
+    fn new(ctx: &mut DefaultContext) -> tetra::Result<PlayerAnimation> {
         let texture = Texture::new(ctx, "./examples/resources/tiles.png")?;
 
         Ok(PlayerAnimation {
@@ -43,7 +43,7 @@ impl PlayerAnimation {
         })
     }
 
-    fn draw<P>(&self, ctx: &mut Context<()>, params: P)
+    fn draw<P>(&self, ctx: &mut Context, params: P)
     where
         P: Into<DrawParams>,
     {
@@ -64,7 +64,7 @@ impl PlayerAnimation {
         }
     }
 
-    fn advance(&mut self, ctx: &Context<()>) {
+    fn advance(&mut self, ctx: &Context) {
         self.current_mut().advance(ctx);
     }
 
@@ -83,7 +83,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
         Ok(GameState {
             animation: PlayerAnimation::new(ctx)?,
             position: Vec2::new(240.0, 160.0),
@@ -92,8 +92,8 @@ impl GameState {
     }
 }
 
-impl State<()> for GameState {
-    fn update(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+impl State for GameState {
+    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         if input::is_key_down(ctx, Key::A) {
             self.velocity.x = (self.velocity.x - 0.5).max(-5.0);
         } else if input::is_key_down(ctx, Key::D) {
@@ -113,7 +113,7 @@ impl State<()> for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         self.animation.advance(ctx);
 
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
@@ -137,6 +137,6 @@ impl State<()> for GameState {
 fn main() -> tetra::Result {
     ContextBuilder::new("Controlling Animations", 480, 320)
         .quit_on_escape(true)
-        .build(|_| Ok(()))?
+        .build()?
         .run(GameState::new)
 }

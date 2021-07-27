@@ -30,7 +30,7 @@
 use tetra::graphics::{self, Color, Texture};
 use tetra::math::Vec2;
 use tetra::time::{self, Timestep};
-use tetra::{Context, ContextBuilder, State};
+use tetra::{ContextBuilder, DefaultContext, State};
 
 struct GameState {
     texture: Texture,
@@ -43,7 +43,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut Context<()>) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/player.png")?,
             velocity: Vec2::new(16.0, 0.0),
@@ -56,8 +56,8 @@ impl GameState {
     }
 }
 
-impl State<()> for GameState {
-    fn update(&mut self, _: &mut Context<()>) -> tetra::Result {
+impl State for GameState {
+    fn update(&mut self, _: &mut DefaultContext) -> tetra::Result {
         // Without special handling, or with extrapolation, we can just
         // update normally.
         self.position_none += self.velocity;
@@ -72,7 +72,7 @@ impl State<()> for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context<()>) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.769, 0.812, 0.631));
 
         // `blend_factor` is a number between 0.0 and 1.0 which represents
@@ -104,6 +104,6 @@ fn main() -> tetra::Result {
     ContextBuilder::new("Interpolation", 640, 480)
         .timestep(Timestep::Fixed(5.0))
         .quit_on_escape(true)
-        .build(|_| Ok(()))?
+        .build()?
         .run(GameState::new)
 }

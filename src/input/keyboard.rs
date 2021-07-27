@@ -1,4 +1,4 @@
-use crate::context::TetraContext;
+use crate::context::Context;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(
@@ -172,55 +172,55 @@ pub enum KeyModifier {
 }
 
 /// Returns true if the specified key is currently down.
-pub fn is_key_down(ctx: &TetraContext, key: Key) -> bool {
+pub fn is_key_down(ctx: &Context, key: Key) -> bool {
     ctx.input.keys_down.contains(&key)
 }
 
 /// Returns true if the specified key is currently up.
-pub fn is_key_up(ctx: &TetraContext, key: Key) -> bool {
+pub fn is_key_up(ctx: &Context, key: Key) -> bool {
     !ctx.input.keys_down.contains(&key)
 }
 
 /// Returns true if the specified key was pressed since the last update.
-pub fn is_key_pressed(ctx: &TetraContext, key: Key) -> bool {
+pub fn is_key_pressed(ctx: &Context, key: Key) -> bool {
     ctx.input.keys_pressed.contains(&key)
 }
 
 /// Returns true if the specified key was released since the last update.
-pub fn is_key_released(ctx: &TetraContext, key: Key) -> bool {
+pub fn is_key_released(ctx: &Context, key: Key) -> bool {
     ctx.input.keys_released.contains(&key)
 }
 
 /// Returns true if the specified key modifier is currently down.
-pub fn is_key_modifier_down(ctx: &TetraContext, key_modifier: KeyModifier) -> bool {
+pub fn is_key_modifier_down(ctx: &Context, key_modifier: KeyModifier) -> bool {
     let (a, b) = get_modifier_keys(key_modifier);
 
     is_key_down(ctx, a) || is_key_down(ctx, b)
 }
 
 /// Returns true if the specified key modifier is currently up.
-pub fn is_key_modifier_up(ctx: &TetraContext, key_modifier: KeyModifier) -> bool {
+pub fn is_key_modifier_up(ctx: &Context, key_modifier: KeyModifier) -> bool {
     let (a, b) = get_modifier_keys(key_modifier);
 
     is_key_up(ctx, a) && is_key_up(ctx, b)
 }
 
 /// Returns an iterator of the keys that are currently down.
-pub fn get_keys_down(ctx: &TetraContext) -> impl Iterator<Item = &Key> {
+pub fn get_keys_down(ctx: &Context) -> impl Iterator<Item = &Key> {
     ctx.input.keys_down.iter()
 }
 
 /// Returns an iterator of the keys that were pressed since the last update.
-pub fn get_keys_pressed(ctx: &TetraContext) -> impl Iterator<Item = &Key> {
+pub fn get_keys_pressed(ctx: &Context) -> impl Iterator<Item = &Key> {
     ctx.input.keys_pressed.iter()
 }
 
 /// Returns an iterator of the keys that were released since the last update.
-pub fn get_keys_released(ctx: &TetraContext) -> impl Iterator<Item = &Key> {
+pub fn get_keys_released(ctx: &Context) -> impl Iterator<Item = &Key> {
     ctx.input.keys_released.iter()
 }
 
-pub(crate) fn set_key_down(ctx: &mut TetraContext, key: Key) -> bool {
+pub(crate) fn set_key_down(ctx: &mut Context, key: Key) -> bool {
     let was_up = ctx.input.keys_down.insert(key);
 
     if was_up {
@@ -230,7 +230,7 @@ pub(crate) fn set_key_down(ctx: &mut TetraContext, key: Key) -> bool {
     was_up
 }
 
-pub(crate) fn set_key_up(ctx: &mut TetraContext, key: Key) -> bool {
+pub(crate) fn set_key_up(ctx: &mut Context, key: Key) -> bool {
     let was_down = ctx.input.keys_down.remove(&key);
 
     if was_down {

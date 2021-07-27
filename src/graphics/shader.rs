@@ -12,7 +12,7 @@ use crate::fs;
 use crate::graphics::{Color, Texture};
 use crate::math::{Mat2, Mat3, Mat4, Vec2, Vec3, Vec4};
 use crate::platform::{GraphicsDevice, RawShader};
-use crate::context::TetraContext;
+use crate::context::Context;
 
 /// The default vertex shader.
 ///
@@ -113,7 +113,7 @@ impl Shader {
     /// if the files could not be loaded.
     /// * [`TetraError::InvalidShader`](crate::TetraError::InvalidShader) will be returned if the
     /// shader could not be compiled.
-    pub fn new<P>(ctx: &mut TetraContext, vertex_path: P, fragment_path: P) -> Result<Shader>
+    pub fn new<P>(ctx: &mut Context, vertex_path: P, fragment_path: P) -> Result<Shader>
     where
         P: AsRef<Path>,
     {
@@ -136,7 +136,7 @@ impl Shader {
     /// if the file could not be loaded.
     /// * [`TetraError::InvalidShader`](crate::TetraError::InvalidShader) will be returned if the
     /// shader could not be compiled.
-    pub fn from_vertex_file<P>(ctx: &mut TetraContext, path: P) -> Result<Shader>
+    pub fn from_vertex_file<P>(ctx: &mut Context, path: P) -> Result<Shader>
     where
         P: AsRef<Path>,
     {
@@ -159,7 +159,7 @@ impl Shader {
     /// if the file could not be loaded.
     /// * [`TetraError::InvalidShader`](crate::TetraError::InvalidShader) will be returned if the
     /// shader could not be compiled.
-    pub fn from_fragment_file<P>(ctx: &mut TetraContext, path: P) -> Result<Shader>
+    pub fn from_fragment_file<P>(ctx: &mut Context, path: P) -> Result<Shader>
     where
         P: AsRef<Path>,
     {
@@ -179,7 +179,7 @@ impl Shader {
     /// * [`TetraError::InvalidShader`](crate::TetraError::InvalidShader) will be returned if the
     /// shader could not be compiled.
     pub fn from_string(
-        ctx: &mut TetraContext,
+        ctx: &mut Context,
         vertex_shader: &str,
         fragment_shader: &str,
     ) -> Result<Shader> {
@@ -196,7 +196,7 @@ impl Shader {
     /// underlying graphics API encounters an error.
     /// * [`TetraError::InvalidShader`](crate::TetraError::InvalidShader) will be returned if the
     /// shader could not be compiled.
-    pub fn from_vertex_string<P>(ctx: &mut TetraContext, shader: &str) -> Result<Shader> {
+    pub fn from_vertex_string<P>(ctx: &mut Context, shader: &str) -> Result<Shader> {
         Shader::with_device(&mut ctx.device, shader, DEFAULT_FRAGMENT_SHADER)
     }
 
@@ -210,7 +210,7 @@ impl Shader {
     /// underlying graphics API encounters an error.
     /// * [`TetraError::InvalidShader`](crate::TetraError::InvalidShader) will be returned if the
     /// shader could not be compiled.
-    pub fn from_fragment_string<P>(ctx: &mut TetraContext, shader: &str) -> Result<Shader> {
+    pub fn from_fragment_string<P>(ctx: &mut Context, shader: &str) -> Result<Shader> {
         Shader::with_device(&mut ctx.device, DEFAULT_VERTEX_SHADER, shader)
     }
 
@@ -234,7 +234,7 @@ impl Shader {
     ///
     /// See the [`UniformValue`] trait's docs for a list of which types can be used as a uniform,
     /// and what their corresponding GLSL types are.
-    pub fn set_uniform<V>(&self, ctx: &mut TetraContext, name: &str, value: V)
+    pub fn set_uniform<V>(&self, ctx: &mut Context, name: &str, value: V)
     where
         V: UniformValue,
     {
@@ -279,7 +279,7 @@ impl Shader {
 /// it cannot be implemented outside of Tetra itself. This may change in the future!
 pub trait UniformValue {
     #[doc(hidden)]
-    fn set_uniform(&self, ctx: &mut TetraContext, shader: &Shader, name: &str);
+    fn set_uniform(&self, ctx: &mut Context, shader: &Shader, name: &str);
 }
 
 macro_rules! simple_uniforms {
@@ -290,7 +290,7 @@ macro_rules! simple_uniforms {
                 #[doc(hidden)]
                  fn set_uniform(
                     &self,
-                    ctx: &mut TetraContext,
+                    ctx: &mut Context,
                     shader: &Shader,
                     name: &str,
                 ) {
@@ -304,7 +304,7 @@ macro_rules! simple_uniforms {
                 #[doc(hidden)]
                  fn set_uniform(
                     &self,
-                    ctx: &mut TetraContext,
+                    ctx: &mut Context,
                     shader: &Shader,
                     name: &str,
                 ) {
@@ -318,7 +318,7 @@ macro_rules! simple_uniforms {
                 #[doc(hidden)]
                  fn set_uniform(
                     &self,
-                    ctx: &mut TetraContext,
+                    ctx: &mut Context,
                     shader: &Shader,
                     name: &str,
                 ) {
@@ -346,7 +346,7 @@ simple_uniforms! {
 /// Can be accessed via a `sampler2D` in your shader.
 impl UniformValue for Texture {
     #[doc(hidden)]
-    fn set_uniform(&self, ctx: &mut TetraContext, shader: &Shader, name: &str) {
+    fn set_uniform(&self, ctx: &mut Context, shader: &Shader, name: &str) {
         let mut samplers = shader.data.samplers.borrow_mut();
 
         if let Some(sampler) = samplers.get_mut(name) {
@@ -378,7 +378,7 @@ where
     T: UniformValue,
 {
     #[doc(hidden)]
-    fn set_uniform(&self, ctx: &mut TetraContext, shader: &Shader, name: &str) {
+    fn set_uniform(&self, ctx: &mut Context, shader: &Shader, name: &str) {
         {
             let inner = *self;
             inner.set_uniform(ctx, shader, name);

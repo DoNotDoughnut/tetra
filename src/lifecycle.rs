@@ -1,8 +1,8 @@
-use std::path::PathBuf;
+use std::{ops::DerefMut, path::PathBuf};
 
 use crate::input::{GamepadAxis, GamepadButton, GamepadStick, Key, MouseButton};
 use crate::math::Vec2;
-use crate::{Context, TetraError};
+use crate::{Context, TetraError, context::DefaultContext};
 
 /// Implemented by types that contain game state and provide logic for updating it
 /// and drawing it to the screen.
@@ -25,30 +25,30 @@ use crate::{Context, TetraError};
 /// The [`error_handling`](https://github.com/17cupsofcoffee/tetra/blob/main/examples/error_handling.rs)
 /// example demonstrates how custom error types can be used to implement more robust error handling.
 #[allow(unused_variables)]
-pub trait State<G = (), E = TetraError> {
+pub trait State<C: DerefMut<Target = Context> = DefaultContext, E = TetraError> {
 
     /// Called before the game loop starts
-    fn begin(&mut self, ctx: &mut Context<G>) -> Result<(), E> {
+    fn begin(&mut self, ctx: &mut C) -> Result<(), E> {
         Ok(())
     }
 
     /// Called when the game is closing
-    fn end(&mut self, ctx: &mut Context<G>) -> Result<(), E> {
+    fn end(&mut self, ctx: &mut C) -> Result<(), E> {
         Ok(())
     }
 
     /// Called when it is time for the game to update.
-    fn update(&mut self, ctx: &mut Context<G>) -> Result<(), E> {
+    fn update(&mut self, ctx: &mut C) -> Result<(), E> {
         Ok(())
     }
 
     /// Called when it is time for the game to be drawn.
-    fn draw(&mut self, ctx: &mut Context<G>) -> Result<(), E> {
+    fn draw(&mut self, ctx: &mut C) -> Result<(), E> {
         Ok(())
     }
 
     /// Called when a window or input event occurs.
-    fn event(&mut self, ctx: &mut Context<G>, event: Event) -> Result<(), E> {
+    fn event(&mut self, ctx: &mut C, event: Event) -> Result<(), E> {
         Ok(())
     }
 }

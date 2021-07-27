@@ -10,7 +10,7 @@ use crate::graphics::text::cache::{FontCache, RasterizedGlyph, Rasterizer};
 use crate::graphics::text::Font;
 use crate::graphics::Rectangle;
 use crate::math::Vec2;
-use crate::context::TetraContext;
+use crate::context::Context;
 
 pub(crate) struct VectorRasterizer<F> {
     font: Rc<F>,
@@ -166,7 +166,7 @@ impl VectorFontBuilder {
     ///
     /// * [`TetraError::PlatformError`] will be returned if the GPU cache for the font
     ///   could not be created.
-    pub fn with_size(&self, ctx: &mut TetraContext, size: f32) -> Result<Font> {
+    pub fn with_size(&self, ctx: &mut Context, size: f32) -> Result<Font> {
         let rasterizer: Box<dyn Rasterizer> = match &self.data {
             VectorFontData::Owned(f) => Box::new(VectorRasterizer::new(Rc::clone(f), size)),
             VectorFontData::Slice(f) => Box::new(VectorRasterizer::new(Rc::clone(f), size)),
