@@ -1,6 +1,6 @@
 // TODO: This file is getting way too huge.
 use std::result;
-use std::{ops::DerefMut, path::PathBuf};
+use std::{path::PathBuf};
 
 use glow::Context as GlowContext;
 use hashbrown::HashMap;
@@ -403,17 +403,17 @@ impl Window {
 
 pub fn handle_events<C, S, E>(ctx: &mut C, state: &mut S) -> result::Result<(), E>
 where
-    C: DerefMut<Target = Context>,
+    C: AsMut<Context> + AsRef<Context>,
     S: State<C, E>,
     E: From<TetraError>,
 {
-    while let Some(event) = ctx.window.event_pump.poll_event() {
+    while let Some(event) = ctx.as_mut().window.event_pump.poll_event() {
         match event {
-            SdlEvent::Quit { .. } => ctx.running = false, // TODO: Add a way to override this
+            SdlEvent::Quit { .. } => ctx.as_mut().running = false, // TODO: Add a way to override this
 
             SdlEvent::Window { win_event, .. } => match win_event {
                 WindowEvent::SizeChanged(width, height) => {
-                    graphics::set_viewport_size(ctx);
+                    graphics::set_viewport_size(ctx.as_mut());
                     state.event(ctx, Event::Resized { width, height })?;
                 }
 
@@ -445,15 +445,16 @@ where
                 repeat,
                 ..
             } => {
-                if !repeat || ctx.window.is_key_repeat_enabled() {
+                if !repeat || ctx.as_ref().window.is_key_repeat_enabled() {
                     if let SdlKey::Escape = k {
+                        let ctx = ctx.as_mut();
                         if ctx.quit_on_escape {
                             ctx.running = false;
                         }
                     }
 
                     if let Some(key) = into_key(k) {
-                        input::set_key_down(ctx, key);
+                        input::set_key_down(ctx.as_mut(), key);
                         state.event(ctx, Event::KeyPressed { key })?;
                     }
                 }
@@ -465,21 +466,21 @@ where
                 if let Some(key) = into_key(k) {
                     // TODO: This can cause some inputs to be missed at low tick rates.
                     // Could consider buffering input releases like Otter2D does?
-                    input::set_key_up(ctx, key);
+                    input::set_key_up(ctx.as_mut(), key);
                     state.event(ctx, Event::KeyReleased { key })?;
                 }
             }
 
             SdlEvent::MouseButtonDown { mouse_btn, .. } => {
                 if let Some(button) = into_mouse_button(mouse_btn) {
-                    input::set_mouse_button_down(ctx, button);
+                    input::set_mouse_button_down(ctx.as_mut(), button);
                     state.event(ctx, Event::MouseButtonPressed { button })?;
                 }
             }
 
             SdlEvent::MouseButtonUp { mouse_btn, .. } => {
                 if let Some(button) = into_mouse_button(mouse_btn) {
-                    input::set_mouse_button_up(ctx, button);
+                    input::set_mouse_button_up(ctx.as_mut(), button);
                     state.event(ctx, Event::MouseButtonReleased { button })?;
                 }
             }
@@ -490,7 +491,7 @@ where
                 let position = Vec2::new(x as f32, y as f32);
                 let delta = Vec2::new(xrel as f32, yrel as f32);
 
-                input::set_mouse_position(ctx, position);
+                input::set_mouse_position(ctx.as_mut(), position);
                 state.event(ctx, Event::MouseMoved { position, delta })?;
             }
 
@@ -502,12 +503,12 @@ where
                     _ => Vec2::new(x, y),
                 };
 
-                input::apply_mouse_wheel_movement(ctx, amount);
+                input::apply_mouse_wheel_movement(ctx.as_mut(), amount);
                 state.event(ctx, Event::MouseWheelMoved { amount })?
             }
 
             SdlEvent::TextInput { text, .. } => {
-                input::push_text_input(ctx, &text);
+                input::push_text_input(ctx.as_mut(), &text);
                 state.event(ctx, Event::TextInput { text })?;
             }
 
@@ -521,17 +522,17 @@ where
             }
 
             SdlEvent::ControllerDeviceAdded { which, .. } => {
-                let controller = ctx
+                let controller = ctx.as_ref()
                     .window
                     .controller_sys
                     .open(which)
                     .map_err(|e| TetraError::PlatformError(e.to_string()))?;
 
-                let haptic = ctx.window.haptic_sys.open_from_joystick_id(which).ok();
+                let haptic = ctx.as_ref().window.haptic_sys.open_from_joystick_id(which).ok();
                 let id = controller.instance_id();
-                let slot = input::add_gamepad(ctx, id);
+                let slot = input::add_gamepad(ctx.as_mut(), id);
 
-                ctx.window.controllers.insert(
+                ctx.as_mut().window.controllers.insert(
                     id,
                     SdlController {
                         controller,
@@ -544,9 +545,12 @@ where
             }
 
             SdlEvent::ControllerDeviceRemoved { which, .. } => {
-                let controller = ctx.window.controllers.remove(&which).unwrap();
-                input::remove_gamepad(ctx, controller.slot);
-
+                let controller = {
+                    let ctx = ctx.as_mut();
+                    let controller = ctx.window.controllers.remove(&which).unwrap();
+                    input::remove_gamepad(ctx, controller.slot);
+                    controller
+                };
                 state.event(
                     ctx,
                     Event::GamepadRemoved {
@@ -556,8 +560,8 @@ where
             }
 
             SdlEvent::ControllerButtonDown { which, button, .. } => {
-                if let Some(slot) = ctx.window.controllers.get(&which).map(|c| c.slot) {
-                    if let Some(pad) = input::get_gamepad_mut(ctx, slot) {
+                if let Some(slot) = ctx.as_ref().window.controllers.get(&which).map(|c| c.slot) {
+                    if let Some(pad) = input::get_gamepad_mut(ctx.as_mut(), slot) {
                         let button = button.into();
 
                         pad.set_button_down(button);
@@ -567,8 +571,8 @@ where
             }
 
             SdlEvent::ControllerButtonUp { which, button, .. } => {
-                if let Some(slot) = ctx.window.controllers.get(&which).map(|c| c.slot) {
-                    if let Some(pad) = input::get_gamepad_mut(ctx, slot) {
+                if let Some(slot) = ctx.as_ref().window.controllers.get(&which).map(|c| c.slot) {
+                    if let Some(pad) = input::get_gamepad_mut(ctx.as_mut(), slot) {
                         let button = button.into();
 
                         // TODO: This can cause some inputs to be missed at low tick rates.
@@ -582,8 +586,8 @@ where
             SdlEvent::ControllerAxisMotion {
                 which, axis, value, ..
             } => {
-                if let Some(slot) = ctx.window.controllers.get(&which).map(|c| c.slot) {
-                    if let Some(pad) = input::get_gamepad_mut(ctx, slot) {
+                if let Some(slot) = ctx.as_ref().window.controllers.get(&which).map(|c| c.slot) {
+                    if let Some(pad) = input::get_gamepad_mut(ctx.as_mut(), slot) {
                         let axis = axis.into();
 
                         let mapped_value = if value > 0 {
@@ -647,7 +651,7 @@ where
                                 Event::GamepadStickMoved {
                                     id: slot,
                                     stick,
-                                    position: input::get_gamepad_stick_position(ctx, slot, stick),
+                                    position: input::get_gamepad_stick_position(ctx.as_ref(), slot, stick),
                                 },
                             )?;
                         }

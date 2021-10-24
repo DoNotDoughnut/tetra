@@ -1,8 +1,8 @@
-use std::{ops::DerefMut, path::PathBuf};
+use std::path::PathBuf;
 
 use crate::input::{GamepadAxis, GamepadButton, GamepadStick, Key, MouseButton};
 use crate::math::Vec2;
-use crate::{Context, TetraError, context::DefaultContext};
+use crate::{Context, TetraError};
 
 /// Implemented by types that contain game state and provide logic for updating it
 /// and drawing it to the screen.
@@ -25,8 +25,7 @@ use crate::{Context, TetraError, context::DefaultContext};
 /// The [`error_handling`](https://github.com/17cupsofcoffee/tetra/blob/main/examples/error_handling.rs)
 /// example demonstrates how custom error types can be used to implement more robust error handling.
 #[allow(unused_variables)]
-pub trait State<C: DerefMut<Target = Context> = DefaultContext, E = TetraError> {
-
+pub trait State<C: AsMut<Context> = Context, E = TetraError> {
     /// Called before the game loop starts
     fn begin(&mut self, ctx: &mut C) -> Result<(), E> {
         Ok(())

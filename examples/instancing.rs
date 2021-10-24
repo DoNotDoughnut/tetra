@@ -1,14 +1,14 @@
 use tetra::graphics::mesh::{BorderRadii, GeometryBuilder, Mesh, ShapeStyle};
 use tetra::graphics::{self, Color, Rectangle, Shader};
 use tetra::math::Vec2;
-use tetra::{DefaultContext, ContextBuilder, State};
+use tetra::{Context, ContextBuilder, State};
 
 struct GameState {
     mesh: Mesh,
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let mesh = GeometryBuilder::new()
             .rounded_rectangle(
                 ShapeStyle::Stroke(2.0),
@@ -35,7 +35,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         self.mesh.draw_instanced(ctx, 256, Vec2::new(16.0, 16.0));

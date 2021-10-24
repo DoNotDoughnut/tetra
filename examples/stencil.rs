@@ -3,7 +3,7 @@ use tetra::graphics::{
     self, Color, DrawParams, Rectangle, StencilAction, StencilState, StencilTest, Texture,
 };
 use tetra::math::Vec2;
-use tetra::{ContextBuilder, DefaultContext, State};
+use tetra::{ContextBuilder, Context, State};
 
 struct GameState {
     circle_mesh: Mesh,
@@ -12,7 +12,7 @@ struct GameState {
 }
 
 impl GameState {
-    pub fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    pub fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         Ok(Self {
             circle_mesh: Mesh::circle(ctx, ShapeStyle::Fill, Vec2::new(400.0, 300.0), 150.0)?,
             rectangle_mesh: Mesh::rectangle(
@@ -26,7 +26,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::BLACK);
 
         // configure the graphics state for writing to the stencil buffer

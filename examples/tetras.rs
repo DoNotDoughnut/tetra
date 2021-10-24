@@ -10,7 +10,7 @@ use tetra::graphics::{self, Color, DrawParams, Texture};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use tetra::window;
-use tetra::{Context, DefaultContext, ContextBuilder, Event, State};
+use tetra::{Context, ContextBuilder, Event, State};
 
 const SCREEN_WIDTH: i32 = 640;
 const SCREEN_HEIGHT: i32 = 480;
@@ -51,7 +51,7 @@ struct Assets {
 }
 
 impl Assets {
-    fn load(ctx: &mut DefaultContext) -> tetra::Result<Assets> {
+    fn load(ctx: &mut Context) -> tetra::Result<Assets> {
         let font = VectorFontBuilder::new("./examples/resources/DejaVuSansMono.ttf")?;
 
         Ok(Assets {
@@ -98,7 +98,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         let assets = Assets::load(ctx)?;
         let initial_scene = TitleScene::new(ctx, &assets)?;
 
@@ -116,7 +116,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         match self.scenes.last_mut() {
             Some(active_scene) => match active_scene.update(ctx, &self.assets)? {
                 Transition::None => {}
@@ -133,7 +133,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
 
         match self.scenes.last_mut() {
@@ -157,7 +157,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut DefaultContext, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut Context, event: Event) -> tetra::Result {
         if let Event::Resized { width, height } = event {
             self.scaler.set_outer_size(width, height);
         }

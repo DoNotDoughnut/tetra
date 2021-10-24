@@ -1,8 +1,6 @@
-use std::{ops::Deref, thread};
-use std::time::{Duration, Instant};
 use std::{
-    ops::{DerefMut},
-    result,
+    result, thread,
+    time::{Duration, Instant},
 };
 
 use crate::graphics::{self, GraphicsContext};
@@ -65,69 +63,22 @@ impl Context {
         })
     }
 
-
-    /// Runs the game.
-    ///
-    /// The `init` parameter takes a function or closure that creates a
-    /// `State` implementation. A common pattern is to use method references
-    /// to pass in your state's constructor directly - see the example below
-    /// for how this works.
-    ///
-    /// The error type returned by your `init` closure currently must match the error
-    /// type returned by your [`State`] methods. This limitation may be lifted
-    /// in the future.
-    ///
-    /// # Errors
-    ///
-    /// If the [`State`] returns an error from [`update`](State::update), [`draw`](State::draw)
-    /// or [`event`](State::event), the game will stop running and this method will
-    /// return the error.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use tetra::{Context, ContextBuilder, State};
-    ///
-    /// struct GameState;
-    ///
-    /// impl GameState {
-    ///     fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
-    ///         Ok(GameState)
-    ///     }
-    /// }
-    ///
-    /// impl State for GameState { }
-    ///
-    /// fn main() -> tetra::Result {
-    ///     // Because GameState::new takes `&mut Context` and returns a `State` implementation
-    ///     // wrapped in a `Result`, you can use it without a closure wrapper:
-    ///     ContextBuilder::new("Hello, world!", 1280, 720)
-    ///         .build()?
-    ///         .run(GameState::new)
-    /// }
-    /// ```
-    ///
-    pub fn run<S: State<DefaultContext, TetraError>, F: FnOnce(&mut DefaultContext) -> result::Result<S, TetraError>>(self, init: F) -> Result {
-        run::<DefaultContext, S, F, TetraError>(&mut DefaultContext(self), init)
+    /// Shortcut function for tetra::run
+    pub fn run<S: State<Self, E>, F: FnOnce(&mut Self) -> result::Result<S, E>, E: From<TetraError>>(mut self, init: F) -> result::Result<(), E> {
+        run(&mut self, init)
     }
 
 }
 
-/// Default Context wrapper
-#[repr(transparent)]
-pub struct DefaultContext(Context);
-
-impl Deref for DefaultContext {
-    type Target = Context;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl AsRef<Context> for Context {
+    fn as_ref(&self) -> &Context {
+        self
     }
 }
 
-impl DerefMut for DefaultContext {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
+impl AsMut<Context> for Context {
+    fn as_mut(&mut self) -> &mut Context {
+        self
     }
 }
 
@@ -156,7 +107,7 @@ impl DerefMut for DefaultContext {
 /// struct GameState;
 ///
 /// impl GameState {
-///     fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+///     fn new(ctx: &mut Context) -> tetra::Result<GameState> {
 ///         Ok(GameState)
 ///     }
 /// }
@@ -172,30 +123,46 @@ impl DerefMut for DefaultContext {
 /// }
 /// ```
 ///
+
 pub fn run<C, S, F, E>(ctx: &mut C, init: F) -> result::Result<(), E>
 where
-    C: DerefMut<Target = Context>,
+    C: AsMut<Context> + AsRef<Context>,
     S: State<C, E>,
     F: FnOnce(&mut C) -> result::Result<S, E>,
     E: From<TetraError>,
 {
-    let state = &mut init(ctx)?;
+    let mut state = init(ctx)?;
+    run_with_state(ctx, &mut state)
+}
 
-    time::reset(ctx);
+/// Runs the game. See `run` function for more details.
+pub fn run_with_state<C, S, E>(ctx: &mut C, state: &mut S) -> result::Result<(), E>
+where
+    C: AsMut<Context> + AsRef<Context>,
+    S: State<C, E>,
+    E: From<TetraError>,
+{
+    time::reset(ctx.as_mut());
 
     let mut output = Ok(());
 
     state.begin(ctx)?;
 
-    ctx.running = true;
-    ctx.window.set_visible(true);
+    {
+        let ctx = ctx.as_mut();
+        ctx.running = true;
+        ctx.window.set_visible(true);
+    }
 
     if let Err(e) = game_loop(ctx, state) {
         output = Err(e);
     }
 
-    ctx.running = false;
-    ctx.window.set_visible(false);
+    {
+        let ctx = ctx.as_mut();
+        ctx.running = false;
+        ctx.window.set_visible(false);
+    }
 
     state.end(ctx)?;
 
@@ -204,50 +171,57 @@ where
 
 pub(crate) fn game_loop<C, S, E>(ctx: &mut C, state: &mut S) -> result::Result<(), E>
 where
-    C: DerefMut<Target = Context>,
+    C: AsMut<Context> + AsRef<Context>,
     S: State<C, E>,
     E: From<TetraError>,
 {
     let mut last_time = Instant::now();
 
-    while ctx.running {
+    while ctx.as_mut().running {
         let curr_time = Instant::now();
         let diff_time = curr_time - last_time;
         last_time = curr_time;
 
-        // Since we fill the buffer when we create the context, we can cycle it
-        // here and it shouldn't reallocate.
-        ctx.time.fps_tracker.pop_front();
-        ctx.time.fps_tracker.push_back(diff_time.as_secs_f64());
+        {
+            let ctx = ctx.as_mut();
+
+            // Since we fill the buffer when we create the context, we can cycle it
+            // here and it shouldn't reallocate.
+            ctx.time.fps_tracker.pop_front();
+            ctx.time.fps_tracker.push_back(diff_time.as_secs_f64());
+        }
 
         platform::handle_events(ctx, state)?;
 
-        match ctx.time.tick_rate {
+        match ctx.as_mut().time.tick_rate {
             Some(tick_rate) => {
-                ctx.time.delta_time = tick_rate;
-                ctx.time.accumulator = (ctx.time.accumulator + diff_time).min(tick_rate * 8);
-
-                while ctx.time.accumulator >= tick_rate {
-                    state.update(ctx)?;
-                    input::clear(ctx);
-
-                    ctx.time.accumulator -= tick_rate;
+                {
+                    let ctx = ctx.as_mut();
+                    ctx.time.delta_time = tick_rate;
+                    ctx.time.accumulator = (ctx.time.accumulator + diff_time).min(tick_rate * 8);
                 }
 
-                ctx.time.delta_time = diff_time;
+                while ctx.as_mut().time.accumulator >= tick_rate {
+                    state.update(ctx)?;
+                    input::clear(ctx.as_mut());
+
+                    ctx.as_mut().time.accumulator -= tick_rate;
+                }
+
+                ctx.as_mut().time.delta_time = diff_time;
             }
 
             None => {
-                ctx.time.delta_time = diff_time;
+                ctx.as_mut().time.delta_time = diff_time;
 
                 state.update(ctx)?;
-                input::clear(ctx);
+                input::clear(ctx.as_mut());
             }
         }
 
         state.draw(ctx)?;
 
-        graphics::present(ctx);
+        graphics::present(ctx.as_mut());
 
         // This provides a sensible FPS limit when running without vsync, and
         // avoids CPU usage skyrocketing on some systems.

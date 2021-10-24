@@ -5,14 +5,14 @@ use std::time::Duration;
 use tetra::graphics::animation::Animation;
 use tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
 use tetra::math::Vec2;
-use tetra::{DefaultContext, ContextBuilder, State};
+use tetra::{Context, ContextBuilder, State};
 
 struct GameState {
     animation: Animation,
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         Ok(GameState {
             animation: Animation::new(
                 Texture::new(ctx, "./examples/resources/tiles.png")?,
@@ -24,7 +24,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         self.animation.advance(ctx);
 
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));

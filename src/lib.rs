@@ -37,7 +37,7 @@
 //! struct GameState;
 //!
 //! impl State for GameState {
-//!     fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+//!     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
 //!         // Cornflower blue, as is tradition
 //!         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 //!         Ok(())
@@ -74,6 +74,6 @@ mod platform;
 pub mod time;
 pub mod window;
 
-pub use crate::context::{ContextBuilder, Context, DefaultContext, run};
+pub use crate::context::{ContextBuilder, Context, run, run_with_state};
 pub use crate::error::{Result, TetraError};
 pub use crate::lifecycle::{Event, State};

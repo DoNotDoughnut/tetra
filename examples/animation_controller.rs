@@ -9,7 +9,7 @@ use tetra::graphics::animation::Animation;
 use tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, DefaultContext, State};
+use tetra::{Context, ContextBuilder, State};
 
 #[derive(PartialEq)]
 enum PlayerState {
@@ -24,7 +24,7 @@ struct PlayerAnimation {
 }
 
 impl PlayerAnimation {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<PlayerAnimation> {
+    fn new(ctx: &mut Context) -> tetra::Result<PlayerAnimation> {
         let texture = Texture::new(ctx, "./examples/resources/tiles.png")?;
 
         Ok(PlayerAnimation {
@@ -83,7 +83,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         Ok(GameState {
             animation: PlayerAnimation::new(ctx)?,
             position: Vec2::new(240.0, 160.0),
@@ -93,7 +93,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         if input::is_key_down(ctx, Key::A) {
             self.velocity.x = (self.velocity.x - 0.5).max(-5.0);
         } else if input::is_key_down(ctx, Key::D) {
@@ -113,7 +113,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         self.animation.advance(ctx);
 
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));

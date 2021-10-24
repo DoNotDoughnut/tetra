@@ -4,7 +4,7 @@ use tetra::graphics::text::{Font, Text};
 use tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
 use tetra::input::{self, GamepadAxis, GamepadButton, GamepadStick};
 use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, DefaultContext, State};
+use tetra::{Context, ContextBuilder, State};
 
 enum Sprite {
     A,
@@ -83,7 +83,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/controls.png")?,
             active_color: Color::rgb(1.0, 0.5, 0.5),
@@ -148,7 +148,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         self.connected = input::is_gamepad_connected(ctx, 0);
 
         if self.connected {
@@ -192,7 +192,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         if self.connected {

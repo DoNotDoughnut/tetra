@@ -1,7 +1,7 @@
 use tetra::graphics::{self, Color, DrawParams, Texture};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
-use tetra::{ContextBuilder, DefaultContext, State};
+use tetra::{ContextBuilder, Context, State};
 
 struct GameState {
     texture: Texture,
@@ -9,7 +9,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/player.png")?,
             position: Vec2::new(32.0, 32.0),
@@ -18,7 +18,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result {
         if input::is_key_down(ctx, Key::A) {
             self.position.x -= 4.0;
         }
@@ -54,7 +54,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.769, 0.812, 0.631));
 
         self.texture.draw(
