@@ -4,12 +4,12 @@ use std::ops::DerefMut;
 /// Original BunnyMark (and sprite) by Iain Lobb
 use rand::rngs::ThreadRng;
 use rand::{self, Rng};
-use tetra::graphics::{self, Color, Texture};
-use tetra::input::{self, MouseButton};
-use tetra::math::Vec2;
-use tetra::time;
-use tetra::window;
-use tetra::{ContextBuilder, DefaultContext, State};
+use firecore_tetra::graphics::{self, Color, Texture};
+use firecore_tetra::input::{self, MouseButton};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::time;
+use firecore_tetra::window;
+use firecore_tetra::{ContextBuilder, DefaultContext, State};
 
 // NOTE: Using a high number here yields worse performance than adding more bunnies over
 // time - I think this is due to all of the RNG being run on the same tick...
@@ -46,7 +46,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         let mut rng = rand::thread_rng();
         let texture = Texture::new(ctx, "./examples/resources/wabbit_alpha.png")?;
         let mut bunnies = Vec::with_capacity(INITIAL_BUNNIES);
@@ -70,7 +70,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         if self.click_timer > 0 {
             self.click_timer -= 1;
         }
@@ -110,7 +110,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
 
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
@@ -133,7 +133,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("BunnyMark", WIDTH, HEIGHT)
         .quit_on_escape(true)
         .build()?

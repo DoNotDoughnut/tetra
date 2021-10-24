@@ -52,7 +52,7 @@ where
     ///
     /// # Examples
     /// ```
-    /// # use tetra::graphics::Rectangle;
+    /// # use firecore_tetra::graphics::Rectangle;
     /// let rects: Vec<Rectangle> = Rectangle::row(0.0, 0.0, 16.0, 16.0).take(3).collect();
     ///
     /// assert_eq!(Rectangle::new(0.0, 0.0, 16.0, 16.0), rects[0]);
@@ -75,7 +75,7 @@ where
     ///
     /// # Examples
     /// ```
-    /// # use tetra::graphics::Rectangle;
+    /// # use firecore_tetra::graphics::Rectangle;
     /// let rects: Vec<Rectangle> = Rectangle::column(0.0, 0.0, 16.0, 16.0).take(3).collect();
     ///
     /// assert_eq!(Rectangle::new(0.0, 0.0, 16.0, 16.0), rects[0]);

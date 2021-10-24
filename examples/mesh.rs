@@ -1,7 +1,7 @@
-use tetra::graphics::mesh::{BufferUsage, Mesh, Vertex, VertexBuffer};
-use tetra::graphics::{self, Color, DrawParams, Texture};
-use tetra::math::Vec2;
-use tetra::{ContextBuilder, DefaultContext, State};
+use firecore_tetra::graphics::mesh::{BufferUsage, Mesh, Vertex, VertexBuffer};
+use firecore_tetra::graphics::{self, Color, DrawParams, Texture};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{ContextBuilder, DefaultContext, State};
 
 struct GameState {
     mesh: Mesh,
@@ -9,7 +9,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         let (pos_a, uv_a) = (Vec2::new(0.0, 0.0), Vec2::new(0.0, 0.0));
         let (pos_b, uv_b) = (Vec2::new(0.0, 128.0), Vec2::new(0.0, 1.0));
         let (pos_c, uv_c) = (Vec2::new(128.0, 128.0), Vec2::new(1.0, 1.0));
@@ -35,13 +35,13 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, _: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, _: &mut DefaultContext) -> firecore_tetra::Result {
         self.timer += 0.01;
 
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         let curve = self.timer.sin() + 2.0;
 
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
@@ -59,7 +59,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Custom Mesh", 1280, 720)
         .build()?
         .run(GameState::new)

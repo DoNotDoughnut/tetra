@@ -86,19 +86,19 @@ impl Context {
     /// # Examples
     ///
     /// ```no_run
-    /// use tetra::{Context, ContextBuilder, State};
+    /// use firecore_tetra::{Context, ContextBuilder, DefaultContext, State};
     ///
     /// struct GameState;
     ///
     /// impl GameState {
-    ///     fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    ///     fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
     ///         Ok(GameState)
     ///     }
     /// }
     ///
     /// impl State for GameState { }
     ///
-    /// fn main() -> tetra::Result {
+    /// fn main() -> firecore_tetra::Result {
     ///     // Because GameState::new takes `&mut Context` and returns a `State` implementation
     ///     // wrapped in a `Result`, you can use it without a closure wrapper:
     ///     ContextBuilder::new("Hello, world!", 1280, 720)
@@ -151,19 +151,19 @@ impl DerefMut for DefaultContext {
 /// # Examples
 ///
 /// ```no_run
-/// use tetra::{Context, ContextBuilder, State};
+/// use firecore_tetra::{Context, ContextBuilder, DefaultContext, State};
 ///
 /// struct GameState;
 ///
 /// impl GameState {
-///     fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+///     fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
 ///         Ok(GameState)
 ///     }
 /// }
 ///
 /// impl State for GameState { }
 ///
-/// fn main() -> tetra::Result {
+/// fn main() -> firecore_tetra::Result {
 ///     // Because GameState::new takes `&mut Context` and returns a `State` implementation
 ///     // wrapped in a `Result`, you can use it without a closure wrapper:
 ///     ContextBuilder::new("Hello, world!", 1280, 720)

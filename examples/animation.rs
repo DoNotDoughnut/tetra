@@ -2,17 +2,17 @@
 
 use std::time::Duration;
 
-use tetra::graphics::animation::Animation;
-use tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
-use tetra::math::Vec2;
-use tetra::{DefaultContext, ContextBuilder, State};
+use firecore_tetra::graphics::animation::Animation;
+use firecore_tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{DefaultContext, ContextBuilder, State};
 
 struct GameState {
     animation: Animation,
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         Ok(GameState {
             animation: Animation::new(
                 Texture::new(ctx, "./examples/resources/tiles.png")?,
@@ -24,7 +24,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         self.animation.advance(ctx);
 
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
@@ -41,7 +41,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Displaying an Animation", 480, 320)
         .quit_on_escape(true)
         .build()?

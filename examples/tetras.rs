@@ -3,14 +3,14 @@
 // and the ggez-goodies scene stack.
 
 use rand::{self, Rng};
-use tetra::audio::Sound;
-use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
-use tetra::graphics::text::{Font, Text, VectorFontBuilder};
-use tetra::graphics::{self, Color, DrawParams, Texture};
-use tetra::input::{self, Key};
-use tetra::math::Vec2;
-use tetra::window;
-use tetra::{Context, DefaultContext, ContextBuilder, Event, State};
+use firecore_tetra::audio::Sound;
+use firecore_tetra::graphics::scaling::{ScalingMode, ScreenScaler};
+use firecore_tetra::graphics::text::{Font, Text, VectorFontBuilder};
+use firecore_tetra::graphics::{self, Color, DrawParams, Texture};
+use firecore_tetra::input::{self, Key};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::window;
+use firecore_tetra::{Context, DefaultContext, ContextBuilder, Event, State};
 
 const SCREEN_WIDTH: i32 = 640;
 const SCREEN_HEIGHT: i32 = 480;
@@ -22,7 +22,7 @@ const BOARD_OFFSET_X: i32 = (SCREEN_WIDTH - BOARD_WIDTH) / 2;
 const BOARD_OFFSET_Y: i32 = (SCREEN_HEIGHT - BOARD_HEIGHT) / 2;
 const SCORE_OFFSET_Y: i32 = BOARD_OFFSET_Y + BOARD_HEIGHT + 4;
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Tetras", SCREEN_WIDTH, SCREEN_HEIGHT)
         .resizable(true)
         .quit_on_escape(true)
@@ -51,7 +51,7 @@ struct Assets {
 }
 
 impl Assets {
-    fn load(ctx: &mut DefaultContext) -> tetra::Result<Assets> {
+    fn load(ctx: &mut DefaultContext) -> firecore_tetra::Result<Assets> {
         let font = VectorFontBuilder::new("./examples/resources/DejaVuSansMono.ttf")?;
 
         Ok(Assets {
@@ -78,8 +78,8 @@ impl Assets {
 // do this without defining your own trait!
 
 trait Scene {
-    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition>;
-    fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition>;
+    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> firecore_tetra::Result<Transition>;
+    fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> firecore_tetra::Result<Transition>;
 }
 
 enum Transition {
@@ -98,7 +98,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         let assets = Assets::load(ctx)?;
         let initial_scene = TitleScene::new(ctx, &assets)?;
 
@@ -116,7 +116,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         match self.scenes.last_mut() {
             Some(active_scene) => match active_scene.update(ctx, &self.assets)? {
                 Transition::None => {}
@@ -133,7 +133,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
 
         match self.scenes.last_mut() {
@@ -157,7 +157,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut DefaultContext, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut DefaultContext, event: Event) -> firecore_tetra::Result {
         if let Event::Resized { width, height } = event {
             self.scaler.set_outer_size(width, height);
         }
@@ -174,7 +174,7 @@ struct TitleScene {
 }
 
 impl TitleScene {
-    fn new(ctx: &mut Context, assets: &Assets) -> tetra::Result<TitleScene> {
+    fn new(ctx: &mut Context, assets: &Assets) -> firecore_tetra::Result<TitleScene> {
         // Setting a Sound to repeat without holding on to the SoundInstance
         // is usually a bad practice, as it means you can never stop playback.
         // In our case though, we want it to repeat forever, so it's fine!
@@ -188,7 +188,7 @@ impl TitleScene {
 }
 
 impl Scene for TitleScene {
-    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> firecore_tetra::Result<Transition> {
         if input::is_key_pressed(ctx, Key::Space) {
             Ok(Transition::Push(Box::new(GameScene::new(ctx, assets))))
         } else {
@@ -196,7 +196,7 @@ impl Scene for TitleScene {
         }
     }
 
-    fn draw(&mut self, ctx: &mut Context, _: &Assets) -> tetra::Result<Transition> {
+    fn draw(&mut self, ctx: &mut Context, _: &Assets) -> firecore_tetra::Result<Transition> {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         self.title_text.draw(ctx, Vec2::new(16.0, 16.0));
@@ -439,7 +439,7 @@ impl GameScene {
 }
 
 impl Scene for GameScene {
-    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context, assets: &Assets) -> firecore_tetra::Result<Transition> {
         self.drop_timer += 1;
         self.move_timer += 1;
 
@@ -576,7 +576,7 @@ impl Scene for GameScene {
         Ok(Transition::None)
     }
 
-    fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition> {
+    fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> firecore_tetra::Result<Transition> {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         assets

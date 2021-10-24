@@ -1,7 +1,7 @@
-use tetra::graphics::text::{Font, Text};
-use tetra::graphics::{self, Canvas, Color, DrawParams, Shader, Texture};
-use tetra::math::Vec2;
-use tetra::{ContextBuilder, DefaultContext, State};
+use firecore_tetra::graphics::text::{Font, Text};
+use firecore_tetra::graphics::{self, Canvas, Color, DrawParams, Shader, Texture};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{ContextBuilder, DefaultContext, State};
 
 struct GameState {
     canvas: Canvas,
@@ -17,7 +17,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         Ok(GameState {
             canvas: Canvas::new(ctx, 1280, 720)?,
             texture: Texture::new(ctx, "./examples/resources/player.png")?,
@@ -36,7 +36,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, _ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, _ctx: &mut DefaultContext) -> firecore_tetra::Result {
         self.timer += 1.0;
 
         self.red = ((self.timer / 10.0).sin() + 1.0) / 2.0;
@@ -51,7 +51,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::set_canvas(ctx, &self.canvas);
 
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
@@ -82,7 +82,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Canvas Rendering", 1280, 720)
         .quit_on_escape(true)
         .build()?

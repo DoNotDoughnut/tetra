@@ -1,8 +1,8 @@
-use tetra::graphics::text::{Font, Text};
-use tetra::graphics::{self, Color, NineSlice, Rectangle, Texture};
-use tetra::input::{self, Key};
-use tetra::math::Vec2;
-use tetra::{window, ContextBuilder, DefaultContext, State};
+use firecore_tetra::graphics::text::{Font, Text};
+use firecore_tetra::graphics::{self, Color, NineSlice, Rectangle, Texture};
+use firecore_tetra::input::{self, Key};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{window, ContextBuilder, DefaultContext, State};
 
 const LABEL: &str = "\
 Use the scroll wheel or W/S to read more!
@@ -27,7 +27,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         Ok(GameState {
             panel_texture: Texture::new(ctx, "./examples/resources/panel.png")?,
             panel_config: NineSlice::with_border(Rectangle::new(0.0, 0.0, 32.0, 32.0), 4.0),
@@ -42,7 +42,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         self.text_pos.y += (input::get_mouse_wheel_movement(ctx).y * 8) as f32;
 
         if input::is_key_down(ctx, Key::W) {
@@ -56,7 +56,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         let (window_width, window_height) = window::get_size(ctx);
@@ -93,7 +93,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Scissor Rectangles", 640, 480)
         .resizable(true)
         .quit_on_escape(true)

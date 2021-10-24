@@ -1,15 +1,15 @@
-use tetra::graphics::text::{Font, Text};
-use tetra::graphics::{self, Color};
-use tetra::input::{self, Key, KeyModifier};
-use tetra::math::Vec2;
-use tetra::{DefaultContext, ContextBuilder, State};
+use firecore_tetra::graphics::text::{Font, Text};
+use firecore_tetra::graphics::{self, Color};
+use firecore_tetra::input::{self, Key, KeyModifier};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{DefaultContext, ContextBuilder, State};
 
 struct GameState {
     text: Text,
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         let font = Font::vector(ctx, "./examples/resources/DejaVuSansMono.ttf", 32.0)?;
 
         Ok(GameState {
@@ -19,7 +19,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         if input::is_key_pressed(ctx, Key::Enter) {
             self.text.push_str("\n");
         }
@@ -45,7 +45,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         self.text.draw(ctx, Vec2::new(16.0, 16.0));
@@ -54,7 +54,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Keyboard Input", 640, 480)
         .quit_on_escape(true)
         .build()?

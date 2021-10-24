@@ -125,7 +125,7 @@ This project adheres to Semantic Versioning.
     * This is not an API breaking change, but will alter the behaviour of existing games.
 * **Breaking:** FLAC audio support has been disabled by default - use the `audio_flac` feature to re-enable it.
 * **Breaking:** Updated `vek` to 0.13.
-    * As Vek is exposed via Tetra's API in the form of the `tetra::math` module, this is potentially a breaking change.
+    * As Vek is exposed via Tetra's API in the form of the `firecore_tetra::math` module, this is potentially a breaking change.
 * `time::get_delta_time` now returns a fixed value when called from `update` in fixed timestep mode.
     * Using delta time in fixed timestep mode is not required, but can be useful if you want to measure things in 'per second' terms rather than 'per frame'.
     * Previously, trying to use delta time in this way could introduce floating point error/non-determinism into your game logic, and would break in the case of a double update.
@@ -270,7 +270,7 @@ This project adheres to Semantic Versioning.
     * There was no meaningful way to use this function without access to other private functions, so it has been hidden to avoid confusion.
 * Updated `bytemuck` to 1.4.
 * **Breaking:** Updated `vek` to 0.12.
-    * As Vek is exposed via Tetra's API in the form of the `tetra::math` module, this is potentially a breaking change.
+    * As Vek is exposed via Tetra's API in the form of the `firecore_tetra::math` module, this is potentially a breaking change.
 
 ## [0.4.2] - 2020-08-14
 
@@ -317,10 +317,10 @@ This project adheres to Semantic Versioning.
     * It now uses `ab_glyph` instead of `rusttype`, which allows us to support OTF fonts, and should be faster in general.
     * This also fixes several long-standing bugs with text rendering ([#125](https://github.com/17cupsofcoffee/tetra/issues/125), [#161](https://github.com/17cupsofcoffee/tetra/issues/161), [#180](https://github.com/17cupsofcoffee/tetra/issues/180)).
     * The new API has been written with the requirements of bitmap fonts in mind, and a loader for these will likely be added in a future version.
-    * As this API may expand in the future, it has been moved into the `tetra::graphics::text` submodule to avoid cluttering the main `graphics` module.
+    * As this API may expand in the future, it has been moved into the `firecore_tetra::graphics::text` submodule to avoid cluttering the main `graphics` module.
 * Improved the documentation for various types' performance characteristics.
 * **Breaking:** Updated `vek` to 0.11.
-    * As Vek is exposed via Tetra's API in the form of the `tetra::math` module, this is potentially a breaking change.
+    * As Vek is exposed via Tetra's API in the form of the `firecore_tetra::math` module, this is potentially a breaking change.
 * Updated `hashbrown` to 0.8.
 
 ### Removed
@@ -726,7 +726,7 @@ for. This can be useful when implementing more complex animation behaviors. ([@V
 * The library has been upgraded to the 2018 edition of Rust.
 * `ContextBuilder::new` now takes the title and size as parameters. The old behavior of the function can be replicated by using `ContextBuilder::default` instead.
 * `run` is now a method on `Context`, instead of a free function.
-* The `update` and `draw` methods on `State` now return `tetra::Result`, allowing errors to be returned (or propagated via the `?` operator). Any errors returned from these methods will stop the game - your main method can then handle the error (e.g. log it out).
+* The `update` and `draw` methods on `State` now return `firecore_tetra::Result`, allowing errors to be returned (or propagated via the `?` operator). Any errors returned from these methods will stop the game - your main method can then handle the error (e.g. log it out).
 * The `scale` option on `ContextBuilder` has been renamed to `window_scale`, to better reflect its behavior.
 * `Shader::from_file` is now called `Shader::new`, and `Shader::new` is now called `Shader::from_string`. This is more consistent with the other constructors.
 * Tick rates are now specified in ticks per second.
@@ -779,7 +779,7 @@ for. This can be useful when implementing more complex animation behaviors. ([@V
 
 * The `NineSlice` type has been added, allowing you to easily create dialog boxes from small textures.
 * The window size can now be set explicitly. This will take precedence over the scale setting.
-* `tetra::error::Result` and `tetra::error::TetraError` are now re-exported in the root of the crate. This allows you to write `tetra::Result` in your function signatures, which aligns a bit better with other custom `Result` types like `io::Result`.
+* `firecore_tetra::error::Result` and `firecore_tetra::error::TetraError` are now re-exported in the root of the crate. This allows you to write `firecore_tetra::Result` in your function signatures, which aligns a bit better with other custom `Result` types like `io::Result`.
 * [An example of how to use the `Animation` type has been added](https://github.com/17cupsofcoffee/tetra/blob/main/examples/animation.rs).
 
 

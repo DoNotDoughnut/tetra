@@ -1,9 +1,9 @@
-use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
-use tetra::graphics::text::{Font, Text};
-use tetra::graphics::{self, Color, NineSlice, Rectangle, Texture};
-use tetra::input::{self, Key};
-use tetra::math::Vec2;
-use tetra::{ContextBuilder, DefaultContext, Event, State};
+use firecore_tetra::graphics::scaling::{ScalingMode, ScreenScaler};
+use firecore_tetra::graphics::text::{Font, Text};
+use firecore_tetra::graphics::{self, Color, NineSlice, Rectangle, Texture};
+use firecore_tetra::input::{self, Key};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{ContextBuilder, DefaultContext, Event, State};
 
 const LABEL: &str = "Press Space to cycle between scaling modes";
 const SCREEN_WIDTH: f32 = 640.0;
@@ -21,7 +21,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         Ok(GameState {
             scaler: ScreenScaler::with_window_size(ctx, 640, 480, ScalingMode::Fixed)?,
             panel_texture: Texture::new(ctx, "./examples/resources/panel.png")?,
@@ -40,7 +40,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         if input::is_key_pressed(ctx, Key::Space) {
             let next = match self.scaler.mode() {
                 ScalingMode::Fixed => ScalingMode::Stretch,
@@ -57,7 +57,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
@@ -78,7 +78,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn event(&mut self, _: &mut DefaultContext, event: Event) -> tetra::Result {
+    fn event(&mut self, _: &mut DefaultContext, event: Event) -> firecore_tetra::Result {
         if let Event::Resized { width, height } = event {
             self.scaler.set_outer_size(width, height);
         }
@@ -87,7 +87,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Screen Scaling", 640, 480)
         .resizable(true)
         .maximized(true)

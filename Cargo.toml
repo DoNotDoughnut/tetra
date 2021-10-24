@@ -1,12 +1,11 @@
 [package]
-name = "tetra"
-description = "A simple 2D game framework written in Rust"
-version = "0.6.5"
+name = "firecore-tetra"
+description = "A fork of a simple 2D game framework written in Rust"
+version = "0.0.1"
 edition = "2018"
 authors = ["Joe Clay <27cupsofcoffee@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/17cupsofcoffee/tetra"
-documentation = "https://docs.rs/tetra"
+repository = "https://github.com/fiirecore/tetra"
 readme = "README.md"
 keywords = ["game", "engine", "framework", "gamedev"]
 categories = ["game-engines"]
@@ -18,11 +17,11 @@ glow = "0.9.0"
 image = { version = "0.23.12", default-features = false }
 vek = { version = "0.13.1", default-features = false }
 hashbrown = "0.11.0"
-serde = { version = "1.0.104", optional = true } 
+serde = { version = "1", optional = true } 
 ab_glyph = { version = "0.2.2", optional = true }
 xi-unicode = "0.3.0"
 bytemuck = "1.5.0"
-num-traits = "0.2.14"
+num-traits = "0.2"
 lyon_tessellation = "0.17.4"
 
 [dev-dependencies]
@@ -42,7 +41,7 @@ default = [
     "texture_bmp",
 ]
 
-# Enables the `tetra::audio` API. This feature can be disabled if you want to use a different
+# Enables the `firecore_tetra::audio` API. This feature can be disabled if you want to use a different
 # audio API in your game (e.g. FMod or WWise).
 audio = ["rodio"]
 

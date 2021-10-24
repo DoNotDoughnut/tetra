@@ -1,10 +1,10 @@
 // Button prompts from https://opengameart.org/content/free-keyboard-and-controllers-prompts-pack
 
-use tetra::graphics::text::{Font, Text};
-use tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
-use tetra::input::{self, GamepadAxis, GamepadButton, GamepadStick};
-use tetra::math::Vec2;
-use tetra::{Context, ContextBuilder, DefaultContext, State};
+use firecore_tetra::graphics::text::{Font, Text};
+use firecore_tetra::graphics::{self, Color, DrawParams, Rectangle, Texture};
+use firecore_tetra::input::{self, GamepadAxis, GamepadButton, GamepadStick};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{Context, ContextBuilder, DefaultContext, State};
 
 enum Sprite {
     A,
@@ -83,7 +83,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         Ok(GameState {
             texture: Texture::new(ctx, "./examples/resources/controls.png")?,
             active_color: Color::rgb(1.0, 0.5, 0.5),
@@ -148,7 +148,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn update(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn update(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         self.connected = input::is_gamepad_connected(ctx, 0);
 
         if self.connected {
@@ -192,7 +192,7 @@ impl State for GameState {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         if self.connected {
@@ -226,7 +226,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Gamepad Input", 1280, 720)
         .quit_on_escape(true)
         .build()?

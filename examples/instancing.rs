@@ -1,14 +1,14 @@
-use tetra::graphics::mesh::{BorderRadii, GeometryBuilder, Mesh, ShapeStyle};
-use tetra::graphics::{self, Color, Rectangle, Shader};
-use tetra::math::Vec2;
-use tetra::{DefaultContext, ContextBuilder, State};
+use firecore_tetra::graphics::mesh::{BorderRadii, GeometryBuilder, Mesh, ShapeStyle};
+use firecore_tetra::graphics::{self, Color, Rectangle, Shader};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{DefaultContext, ContextBuilder, State};
 
 struct GameState {
     mesh: Mesh,
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         let mesh = GeometryBuilder::new()
             .rounded_rectangle(
                 ShapeStyle::Stroke(2.0),
@@ -35,7 +35,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         self.mesh.draw_instanced(ctx, 256, Vec2::new(16.0, 16.0));
@@ -44,7 +44,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Instanced Mesh Rendering", 1280, 720)
         .build()?
         .run(GameState::new)

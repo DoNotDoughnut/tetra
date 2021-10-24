@@ -31,20 +31,20 @@
 //! To get a simple window displayed on screen, the following code can be used:
 //!
 //! ```no_run
-//! use tetra::graphics::{self, Color};
-//! use tetra::{Context, ContextBuilder, State};
+//! use firecore_tetra::graphics::{self, Color};
+//! use firecore_tetra::{Context, ContextBuilder, DefaultContext, State};
 //!
 //! struct GameState;
 //!
 //! impl State for GameState {
-//!     fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+//!     fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
 //!         // Cornflower blue, as is tradition
 //!         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 //!         Ok(())
 //!     }
 //! }
 //!
-//! fn main() -> tetra::Result {
+//! fn main() -> firecore_tetra::Result {
 //!     ContextBuilder::new("Hello, world!", 1280, 720)
 //!         .build()?
 //!         .run(|_| Ok(GameState))
@@ -74,6 +74,6 @@ mod platform;
 pub mod time;
 pub mod window;
 
-pub use crate::context::{ContextBuilder, Context, DefaultContext, run};
+pub use crate::context::{run, Context, ContextBuilder, DefaultContext};
 pub use crate::error::{Result, TetraError};
 pub use crate::lifecycle::{Event, State};

@@ -1,7 +1,7 @@
-use tetra::graphics::mesh::{GeometryBuilder, Mesh, ShapeStyle};
-use tetra::graphics::{self, Color};
-use tetra::math::Vec2;
-use tetra::{DefaultContext, ContextBuilder, State};
+use firecore_tetra::graphics::mesh::{GeometryBuilder, Mesh, ShapeStyle};
+use firecore_tetra::graphics::{self, Color};
+use firecore_tetra::math::Vec2;
+use firecore_tetra::{DefaultContext, ContextBuilder, State};
 
 struct GameState {
     simple: Mesh,
@@ -9,7 +9,7 @@ struct GameState {
 }
 
 impl GameState {
-    fn new(ctx: &mut DefaultContext) -> tetra::Result<GameState> {
+    fn new(ctx: &mut DefaultContext) -> firecore_tetra::Result<GameState> {
         // For simple one-off shapes, `Mesh` has simple constructors.
         let simple = Mesh::circle(ctx, ShapeStyle::Stroke(16.0), Vec2::zero(), 16.0)?;
 
@@ -32,7 +32,7 @@ impl GameState {
 }
 
 impl State for GameState {
-    fn draw(&mut self, ctx: &mut DefaultContext) -> tetra::Result {
+    fn draw(&mut self, ctx: &mut DefaultContext) -> firecore_tetra::Result {
         graphics::clear(ctx, Color::rgb(0.392, 0.584, 0.929));
 
         self.simple.draw(ctx, Vec2::new(64.0, 64.0));
@@ -42,7 +42,7 @@ impl State for GameState {
     }
 }
 
-fn main() -> tetra::Result {
+fn main() -> firecore_tetra::Result {
     ContextBuilder::new("Shape Drawing", 1280, 720)
         .build()?
         .run(GameState::new)
